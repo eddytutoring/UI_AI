@@ -75,7 +75,7 @@ class App extends Component<Props, State> {
           fontSize={18}
           fontWeight={'600'}
         />
-        {/* <MICButton/> */}
+        <MICButton />
       </View>
     );
   }
