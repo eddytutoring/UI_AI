@@ -59,7 +59,6 @@ class instructionLabelEng extends Component<Props, State> {
       view: {
         // flex: 1,
         justifyContent: 'center',
-        paddingHorizontal: 60,
       },
       text: {
         fontSize: this.props.fontSize,

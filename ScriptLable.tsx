@@ -44,7 +44,6 @@ class ScriptLable extends Component<Props, State> {
     const styles = StyleSheet.create({
       view: {
         // flex: 1,
-        paddingHorizontal: 60,
       },
       text: {
         fontSize: this.props.fontSize,

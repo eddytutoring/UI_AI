@@ -44,6 +44,11 @@ class App extends Component<Props, State> {
       view: {
         flex: 1,
         justifyContent: 'center',
+        paddingHorizontal: 50,
+      },
+      scripts: {
+        flex: 1,
+        justifyContent: 'center',
       },
       button: {
         backgroundColor: '#bbc4f1',
@@ -53,7 +58,7 @@ class App extends Component<Props, State> {
 
     return (
       <View style={styles.view}>
-        <View style={styles.view}>
+        <View style={styles.scripts}>
           <InstructionLabelEng
             label="Let's start!"
             fontSize={this.state.fontSize}
@@ -66,9 +71,9 @@ class App extends Component<Props, State> {
           />
         </View>
         <InstructionLabelKor
-          label="Bottom"
-          fontSize={this.state.fontSize}
-          fontWeight={this.state.fontWeight}
+          label='"Let&apos;s start!"를 외치며 시작해봐요!'
+          fontSize={18}
+          fontWeight={'600'}
         />
         {/* <MICButton/> */}
       </View>
