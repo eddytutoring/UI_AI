@@ -52,7 +52,9 @@ class instructionLabelKor extends Component<Props, State> {
       },
       text: {
         fontSize: this.props.fontSize,
+        lineHeight: this.props.fontSize,
         fontWeight: this.props.fontWeight,
+        paddingVertical: 4,
       },
       textWrapper: {
         flexDirection: 'row',
@@ -65,11 +67,33 @@ class instructionLabelKor extends Component<Props, State> {
       <Animated.View style={[styles.view, styles.textWrapper]}>
         {this.textArr.map((word, i) => {
           return (
-            <Animated.Text
-              style={{...styles.text, color: i % 2 === 1 ? '#444' : '#888'}}>
-              {i % 2 === 1 && word !== '' ? '"' + word + '"' : word}
-              {`${i < this.textArr.length ? ' ' : ''}`}
-            </Animated.Text>
+            <>
+              <Animated.Text
+                style={{
+                  ...styles.text,
+                  color: '#444',
+                }}>
+                {i % 2 === 1 && word !== '' ? '"' : ''}
+              </Animated.Text>
+              {word.split('').map((word, a) => {
+                return (
+                  <Animated.Text
+                    style={{
+                      ...styles.text,
+                      color: i % 2 ? '#444' : '#888',
+                    }}>
+                    {word}
+                  </Animated.Text>
+                );
+              })}
+              <Animated.Text
+                style={{
+                  ...styles.text,
+                  color: '#444',
+                }}>
+                {i % 2 === 1 && word !== '' ? '"' : ''}
+              </Animated.Text>
+            </>
           );
         })}
       </Animated.View>

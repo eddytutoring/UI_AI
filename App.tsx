@@ -4,17 +4,7 @@ import InstructionLabelEng from './InstructionLabelEng';
 import InstructionLabelKor from './InstructionLabelKor';
 import MICButton from './MICButton';
 
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-  Button,
-  Platform,
-  TouchableHighlight,
-} from 'react-native';
+import {StyleSheet, View, Platform} from 'react-native';
 
 interface Props {}
 interface State {
@@ -71,9 +61,11 @@ class App extends Component<Props, State> {
           />
         </View>
         <InstructionLabelKor
-          label='"Let&apos;s start!"를 외치며 시작해봐요!'
-          fontSize={18}
-          fontWeight={'600'}
+          // label="{I am eating}을 이용해 {샐러드를 먹고 있습니다.}라고 말해볼까요?"
+          label='"I am eating"을 이용해 "샐러드를 먹고 있습니다."라고 말해볼까요?'
+          // label="안녕 바보야"
+          fontSize={17}
+          fontWeight={'bold'}
         />
         <MICButton />
       </View>

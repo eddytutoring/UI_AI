@@ -32,7 +32,9 @@ class MICButton extends Component<Props, State> {
     });
     return (
       <View style={styles.view}>
-        <TouchableHighlight style={styles.button}>
+        <TouchableHighlight
+          style={styles.button}
+          onPress={() => alert('clicked')}>
           <Text style={{color: 'white'}}>hey</Text>
         </TouchableHighlight>
       </View>
