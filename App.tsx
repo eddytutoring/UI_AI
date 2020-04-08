@@ -9,6 +9,7 @@ import {StyleSheet, View, Platform} from 'react-native';
 interface Props {}
 interface State {
   fontSize: number;
+  alignment: 'center' | 'flex-start';
   fontWeight:
     | 'normal'
     | 'bold'
@@ -27,6 +28,7 @@ interface State {
 class App extends Component<Props, State> {
   state: State = {
     fontSize: 25,
+    alignment: 'flex-start',
     fontWeight: '300',
   };
   render() {
@@ -61,11 +63,12 @@ class App extends Component<Props, State> {
           />
         </View>
         <InstructionLabelKor
-          // label="{I am eating}을 이용해 {샐러드를 먹고 있습니다.}라고 말해볼까요?"
           label='"I am eating"을 이용해 "샐러드를 먹고 있습니다."라고 말해볼까요?'
-          // label="안녕 바보야"
           fontSize={17}
           fontWeight={'bold'}
+          accentFontColor={'#444'}
+          alignment={this.state.alignment}
+          fontColor={'#888'}
         />
         <MICButton />
       </View>

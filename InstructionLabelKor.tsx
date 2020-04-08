@@ -4,6 +4,9 @@ import {Animated, Text, StyleSheet, View} from 'react-native';
 interface Props {
   label: string;
   fontSize: number;
+  accentFontColor: string;
+  fontColor: string;
+  alignment: string;
   fontWeight:
     | 'normal'
     | 'bold'
@@ -59,7 +62,7 @@ class instructionLabelKor extends Component<Props, State> {
       textWrapper: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'flex-start',
+        justifyContent: this.props.alignment,
       },
     });
 
@@ -71,7 +74,7 @@ class instructionLabelKor extends Component<Props, State> {
               <Animated.Text
                 style={{
                   ...styles.text,
-                  color: '#444',
+                  color: this.props.accentFontColor,
                 }}>
                 {i % 2 === 1 && word !== '' ? '"' : ''}
               </Animated.Text>
@@ -80,7 +83,10 @@ class instructionLabelKor extends Component<Props, State> {
                   <Animated.Text
                     style={{
                       ...styles.text,
-                      color: i % 2 ? '#444' : '#888',
+                      color:
+                        i % 2
+                          ? this.props.accentFontColor
+                          : this.props.fontColor,
                     }}>
                     {word}
                   </Animated.Text>
@@ -89,7 +95,7 @@ class instructionLabelKor extends Component<Props, State> {
               <Animated.Text
                 style={{
                   ...styles.text,
-                  color: '#444',
+                  color: this.props.accentFontColor,
                 }}>
                 {i % 2 === 1 && word !== '' ? '"' : ''}
               </Animated.Text>
