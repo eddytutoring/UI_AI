@@ -3,6 +3,7 @@ import ScriptLabel from './components/ScriptLable';
 import InstructionLabelEng from './components/InstructionLabelEng';
 import InstructionLabelKor from './components/InstructionLabelKor';
 import MICButton from './components/MICButton';
+import InputField from './components/Input';
 
 import {StyleSheet, View, Platform} from 'react-native';
 
@@ -23,6 +24,9 @@ interface State {
     | '800'
     | '900'
     | undefined;
+  activeLabelFontSize: number;
+  labelFontSize: number;
+  padding: number;
 }
 
 class App extends Component<Props, State> {
@@ -30,12 +34,15 @@ class App extends Component<Props, State> {
     fontSize: 25,
     alignment: 'flex-start',
     fontWeight: '300',
+    activeLabelFontSize: 12,
+    labelFontSize: 16,
+    padding: 50,
   };
   render() {
     const styles = StyleSheet.create({
       view: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'space-around',
         paddingHorizontal: 50,
         backgroundColor: '#fafafa',
       },
@@ -47,10 +54,30 @@ class App extends Component<Props, State> {
         backgroundColor: '#bbc4f1',
         color: Platform.OS === 'ios' ? '#841584' : '#000',
       },
+      input: {
+        flex: 2,
+        justifyContent: 'center',
+      },
     });
 
     return (
       <View style={styles.view}>
+        <View style={styles.input}>
+          <InputField
+            label="이메일 또는 아이디"
+            activeLabelFontSize={this.state.activeLabelFontSize}
+            labelFontSize={this.state.labelFontSize}
+            padding={this.state.padding}
+            secure={false}
+          />
+          <InputField
+            label="비밀번호"
+            activeLabelFontSize={this.state.activeLabelFontSize}
+            labelFontSize={this.state.labelFontSize}
+            padding={this.state.padding}
+            secure={true}
+          />
+        </View>
         <View style={styles.scripts}>
           <InstructionLabelEng
             label="Let's start!"
