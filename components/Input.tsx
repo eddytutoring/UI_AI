@@ -1,5 +1,12 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, TextInput, Animated, Dimensions} from 'react-native';
+import {
+  Platform,
+  StyleSheet,
+  View,
+  TextInput,
+  Animated,
+  Dimensions,
+} from 'react-native';
 
 interface Props {
   label: string;
@@ -78,30 +85,33 @@ class App extends Component<Props, State> {
         position: 'relative',
         paddingBottom: padding,
       },
-      text: {
-        includeFontPadding: false,
-        textAlignVertical: 'center',
-      },
     });
 
     const containerStyle = {
       position: 'absolute',
       includeFontPadding: false,
+      left: Platform.OS !== 'ios' && 4,
       transform: [
         {
           translateY: this._animatedIsFocused.interpolate({
             inputRange: [0, 1],
-            outputRange: [
-              4,
-              -labelFontSize * (1 + activeLabelFontSize / labelFontSize),
-            ],
+            outputRange:
+              Platform.OS === 'ios'
+                ? [
+                    2,
+                    -labelFontSize * (1 + activeLabelFontSize / labelFontSize),
+                  ]
+                : [
+                    (labelFontSize - activeLabelFontSize) * 4 + 1,
+                    -labelFontSize * (2 - activeLabelFontSize / labelFontSize),
+                  ],
           }),
         },
       ],
     };
 
     const textStyle = {
-      lineHeight: labelFontSize,
+      lineHeight: labelFontSize + 2,
       fontSize: this._animatedIsFocused.interpolate({
         inputRange: [0, 1],
         outputRange: [labelFontSize, activeLabelFontSize],
@@ -133,9 +143,7 @@ class App extends Component<Props, State> {
       <>
         <View style={styles.container}>
           <Animated.View style={containerStyle}>
-            <Animated.Text style={[styles.text, textStyle]}>
-              {label}
-            </Animated.Text>
+            <Animated.Text style={textStyle}>{label}</Animated.Text>
           </Animated.View>
           <Animated.View>
             <TextInput

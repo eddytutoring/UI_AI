@@ -36,14 +36,14 @@ class App extends Component<Props, State> {
     fontWeight: '300',
     activeLabelFontSize: 12,
     labelFontSize: 16,
-    padding: 50,
+    padding: 30,
   };
   render() {
     const styles = StyleSheet.create({
       view: {
         flex: 1,
         justifyContent: 'space-around',
-        paddingHorizontal: 50,
+        paddingHorizontal: 30,
         backgroundColor: '#fafafa',
       },
       scripts: {
@@ -55,8 +55,8 @@ class App extends Component<Props, State> {
         color: Platform.OS === 'ios' ? '#841584' : '#000',
       },
       input: {
-        flex: 2,
-        justifyContent: 'center',
+        flex: 3,
+        justifyContent: 'flex-end',
       },
     });
 
