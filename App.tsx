@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
-import ScriptLabel from './ScriptLable';
-import InstructionLabelEng from './InstructionLabelEng';
-import InstructionLabelKor from './InstructionLabelKor';
-import MICButton from './MICButton';
+import ScriptLabel from './components/ScriptLable';
+import InstructionLabelEng from './components/InstructionLabelEng';
+import InstructionLabelKor from './components/InstructionLabelKor';
+import MICButton from './components/MICButton';
 
 import {StyleSheet, View, Platform} from 'react-native';
 
@@ -37,6 +37,7 @@ class App extends Component<Props, State> {
         flex: 1,
         justifyContent: 'center',
         paddingHorizontal: 50,
+        backgroundColor: '#fafafa',
       },
       scripts: {
         flex: 1,
