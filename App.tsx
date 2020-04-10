@@ -55,7 +55,7 @@ class App extends Component<Props, State> {
         color: Platform.OS === 'ios' ? '#841584' : '#000',
       },
       input: {
-        flex: 3,
+        flex: 2,
         justifyContent: 'flex-end',
       },
     });
