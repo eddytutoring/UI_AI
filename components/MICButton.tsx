@@ -70,7 +70,7 @@ class MICButton extends Component<Props, State> {
             }
             style={styles.button}>
             <Image
-              source={require('../sources/mic.png')}
+              source={require('../resource/mic.png')}
               style={{width: 20, height: 40}}></Image>
           </LinearGradient>
         </RadialGradient>

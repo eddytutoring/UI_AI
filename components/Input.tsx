@@ -6,7 +6,11 @@ import {
   TextInput,
   Animated,
   Dimensions,
+  TouchableWithoutFeedback,
+  Image,
 } from 'react-native';
+
+import InputButton from './InputButton';
 
 interface Props {
   label: string;
@@ -62,6 +66,7 @@ class App extends Component<Props, State> {
       borderBottomColor: '#34bcff',
       fontColor: '#34bcff',
     });
+
   handleBlur = () =>
     this.setState({
       isFocused: false,
@@ -70,6 +75,12 @@ class App extends Component<Props, State> {
       borderBottomColor: 'transparent',
       fontColor: '#aaa',
     });
+
+  clearText = () => {
+    this.setState({
+      text: '',
+    });
+  };
 
   render() {
     const {
@@ -84,6 +95,13 @@ class App extends Component<Props, State> {
       container: {
         position: 'relative',
         paddingBottom: padding,
+      },
+      clearButton: {
+        position: 'absolute',
+        right: 0,
+        width: this.props.labelFontSize,
+        height: this.props.labelFontSize,
+        top: Platform.OS === 'android' ? this.props.labelFontSize : 0,
       },
     });
 
@@ -154,11 +172,19 @@ class App extends Component<Props, State> {
               onBlur={this.handleBlur}
               blurOnSubmit
               placeholder={this.state.placeholder}
-              clearButtonMode="always"
+              // clearButtonMode="always"
               value={this.state.text}
               onChangeText={(text) => this.setState({text})}
               secureTextEntry={this.state.secure}
             />
+            {this.state.isFocused === true && (
+              <TouchableWithoutFeedback onPress={this.clearText}>
+                <Image
+                  source={require('../resource/clearButton.png')}
+                  style={styles.clearButton}
+                />
+              </TouchableWithoutFeedback>
+            )}
           </Animated.View>
           <Animated.View style={lineStyle} />
         </View>
