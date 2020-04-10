@@ -2,12 +2,16 @@ import React, {Component} from 'react';
 import {StyleSheet, View, Image} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import RadialGradient from 'react-native-radial-gradient';
+import Tts from 'react-native-tts';
 
 interface Props {}
 interface State {
   diameter: number;
   isReady: boolean;
 }
+
+Tts.setDefaultLanguage('en-GB');
+Tts.setDefaultVoice('com.apple.ttsbundle.Daniel-compact');
 
 class MICButton extends Component<Props, State> {
   state: State = {
@@ -20,6 +24,22 @@ class MICButton extends Component<Props, State> {
       this.setState({
         isReady: true,
       });
+      Tts.getInitStatus().then(
+        () => {
+          Tts.speak('Hello, world!', {
+            androidParams: {
+              KEY_PARAM_PAN: -1,
+              KEY_PARAM_VOLUME: 0.5,
+              KEY_PARAM_STREAM: 'STREAM_MUSIC',
+            },
+          });
+        },
+        (err) => {
+          if (err.code === 'no_engine') {
+            Tts.requestInstallEngine();
+          }
+        },
+      );
     }, 2000);
   }
 
