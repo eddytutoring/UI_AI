@@ -10,8 +10,6 @@ import {
   Image,
 } from 'react-native';
 
-import InputButton from './InputButton';
-
 interface Props {
   label: string;
   activeLabelFontSize: number;
