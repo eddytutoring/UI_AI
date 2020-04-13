@@ -1,46 +1,54 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, Image} from 'react-native';
+import {StyleSheet, View, Image, Platform} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import RadialGradient from 'react-native-radial-gradient';
 import Tts from 'react-native-tts';
 
-interface Props {}
+interface Props {
+  tts: string;
+}
 interface State {
   diameter: number;
   isReady: boolean;
+  isTtsFinished: boolean;
 }
-
-Tts.setDefaultLanguage('en-GB');
-Tts.setDefaultVoice('com.apple.ttsbundle.Daniel-compact');
 
 class MICButton extends Component<Props, State> {
   state: State = {
     diameter: 90,
     isReady: false,
+    isTtsFinished: false,
   };
+
+  constructor(props: Props) {
+    super(props);
+    Tts.setDefaultLanguage('en-IE');
+  }
 
   componentDidMount() {
     setTimeout(() => {
       this.setState({
         isReady: true,
       });
-      Tts.getInitStatus().then(
-        () => {
-          Tts.speak('Hello, world!', {
-            androidParams: {
-              KEY_PARAM_PAN: -1,
-              KEY_PARAM_VOLUME: 0.5,
-              KEY_PARAM_STREAM: 'STREAM_MUSIC',
+      Tts.speak(
+        this.props.tts,
+        Platform.OS === 'ios'
+          ? {
+              iosVoiceId: 'com.apple.ttsbundle.siri_female_en-US_compact',
+              rate: 0.5,
+            }
+          : {
+              androidParams: {
+                KEY_PARAM_PAN: -1,
+                KEY_PARAM_VOLUME: 1,
+                KEY_PARAM_STREAM: 'STREAM_MUSIC',
+              },
             },
-          });
-        },
-        (err) => {
-          if (err.code === 'no_engine') {
-            Tts.requestInstallEngine();
-          }
-        },
       );
     }, 2000);
+    Tts.addEventListener('tts-finish', () => {
+      this.setState({isReady: false, isTtsFinished: true});
+    });
   }
 
   render() {
@@ -62,7 +70,6 @@ class MICButton extends Component<Props, State> {
         shadowOffset: {width: 0, height: 8},
         shadowOpacity: 0.25,
         shadowRadius: 4,
-        // backgroundColor: 'red',
       },
     });
     return (
@@ -90,8 +97,17 @@ class MICButton extends Component<Props, State> {
             }
             style={styles.button}>
             <Image
-              source={require('../resource/mic.png')}
-              style={{width: 20, height: 40}}></Image>
+              source={
+                this.state.isTtsFinished
+                  ? require('../resource/clear.png')
+                  : require('../resource/mic.png')
+              }
+              style={
+                this.state.isTtsFinished
+                  ? {width: 40, height: 35}
+                  : {width: 20, height: 40}
+              }
+            />
           </LinearGradient>
         </RadialGradient>
       </View>

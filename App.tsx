@@ -98,7 +98,7 @@ class App extends Component<Props, State> {
           alignment={this.state.alignment}
           fontColor={'#888'}
         />
-        <MICButton />
+        <MICButton tts="Let's name some words of food." />
       </View>
     );
   }
