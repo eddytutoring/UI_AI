@@ -60,6 +60,8 @@ target 'UI_AI' do
 
   pod 'TextToSpeech', :path => '../node_modules/react-native-tts'
 
+  pod 'react-native-voice', :path => '../node_modules/react-native-voice'
+
   target 'UI_AITests' do
     inherit! :complete
     # Pods for testing

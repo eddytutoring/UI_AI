@@ -2,10 +2,16 @@ import React, {Component} from 'react';
 import ScriptLabel from './components/ScriptLable';
 import InstructionLabelEng from './components/InstructionLabelEng';
 import InstructionLabelKor from './components/InstructionLabelKor';
-import MICButton from './components/MICButton';
+import MICButton from './components/MICButton2';
 import InputField from './components/Input';
+import Tts from 'react-native-tts';
+import Voice from 'react-native-voice';
+import similarity from 'string-similarity';
+import Tokenizer from 'wink-tokenizer';
 
-import {StyleSheet, View, Platform} from 'react-native';
+import {StyleSheet, View, Platform, ViewPagerAndroidBase} from 'react-native';
+
+const tokenizer = new Tokenizer();
 
 interface Props {}
 interface State {
@@ -27,9 +33,18 @@ interface State {
   activeLabelFontSize: number;
   labelFontSize: number;
   padding: number;
+  isReady: boolean;
+  isTtsFinished: boolean;
+  stt: string;
+  tts: string;
 }
 
 class App extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    Tts.setDefaultLanguage('en-US');
+  }
+
   state: State = {
     fontSize: 25,
     alignment: 'flex-start',
@@ -37,7 +52,104 @@ class App extends Component<Props, State> {
     activeLabelFontSize: 12,
     labelFontSize: 16,
     padding: 30,
+    isReady: false,
+    isTtsFinished: false,
+    stt: 'yet',
+    tts: "Let's start!",
   };
+
+  componentDidMount() {
+    setTimeout(() => {
+      this.setState({
+        isReady: true,
+      });
+      Voice.start('en-US');
+      Voice.onSpeechResults = this.onSpeechResultsHandler.bind(this);
+      Voice.onSpeechEnd = this.onSpeechEndHandler.bind(this);
+    }, 500);
+  }
+
+  processNLU(answerSentence: string, candidateList: string[]) {
+    const answerWord = tokenizer
+      .tokenize(answerSentence.toLowerCase().replace('!', ''))
+      .filter((token: any) => token.tag === 'word' || token.tag === 'number')
+      .map((token: any) => token.value)
+      .join('');
+
+    return similarity.findBestMatch(answerWord, [
+      ...candidateList.map((sentence) =>
+        sentence.toLowerCase().replace('!', ''),
+      ),
+    ]);
+  }
+
+  onSpeechResultsHandler(result: Object | any) {
+    console.log(result.value);
+    const accuracy = this.processNLU(this.state.tts, result.value);
+    const {
+      bestMatch: {target, rating},
+    } = accuracy;
+
+    console.log(rating);
+
+    if (
+      rating >= 0.6
+      // result.value[0].localeCompare(
+      //   this.state.tts.replace('!', ''),
+      //   undefined,
+      //   {sensitivity: 'accent'},
+      // )
+    ) {
+      Voice.destroy().then(Voice.removeAllListeners);
+      this.setState({
+        isReady: false,
+        isTtsFinished: true,
+      });
+      setTimeout(() => {
+        this.ttsSpeaking();
+        this.setState({
+          stt: 'passed',
+        });
+      }, 3000);
+    }
+  }
+
+  onSpeechEndHandler = (event: Object) => {
+    Voice.destroy().then(Voice.removeAllListeners);
+    Voice.start('en-US');
+    Voice.onSpeechEnd = this.onSpeechEndHandler.bind(this);
+  };
+
+  // else { //다시 재생해야 하는 경우
+  //   //틀린 경우
+  //   //icon change
+  //   Voice.destroy().then(Voice.removeAllListeners);
+  //   Voice.start('en-US');
+  //   Voice.onSpeechResults = this.onSpeechResultsHandler.bind(this);
+  // }
+
+  ttsSpeaking() {
+    Tts.speak(
+      this.state.tts,
+      Platform.OS === 'ios'
+        ? {
+            iosVoiceId: 'com.apple.ttsbundle.siri_female_en-US_compact',
+            rate: 0.5,
+          }
+        : {
+            androidParams: {
+              KEY_PARAM_PAN: -1,
+              KEY_PARAM_VOLUME: 1,
+              KEY_PARAM_STREAM: 'STREAM_MUSIC',
+            },
+          },
+    );
+
+    Tts.addEventListener('tts-finish', () => {
+      this.setState({isReady: false, isTtsFinished: true});
+    });
+  }
+
   render() {
     const styles = StyleSheet.create({
       view: {
@@ -62,7 +174,7 @@ class App extends Component<Props, State> {
 
     return (
       <View style={styles.view}>
-        <View style={styles.input}>
+        {/* <View style={styles.input}>
           <InputField
             label="이메일 또는 아이디"
             activeLabelFontSize={this.state.activeLabelFontSize}
@@ -77,28 +189,41 @@ class App extends Component<Props, State> {
             padding={this.state.padding}
             secure={true}
           />
-        </View>
+        </View> */}
+
         <View style={styles.scripts}>
-          <InstructionLabelEng
+          {/* <InstructionLabelEng
             label="Let's start!"
             fontSize={this.state.fontSize}
             fontWeight={this.state.fontWeight}
-          />
-          <ScriptLabel
-            label="Let's name some words of food."
-            fontSize={this.state.fontSize}
-            fontWeight={this.state.fontWeight}
-          />
+          /> */}
+
+          {this.state.stt === 'yet' ? (
+            <ScriptLabel
+              label={this.state.tts}
+              fontSize={this.state.fontSize}
+              fontWeight={this.state.fontWeight}
+            />
+          ) : (
+            <InstructionLabelEng
+              label={this.state.tts}
+              fontSize={this.state.fontSize}
+              fontWeight={this.state.fontWeight}
+            />
+          )}
         </View>
         <InstructionLabelKor
-          label='"I am eating"을 이용해 "샐러드를 먹고 있습니다."라고 말해볼까요?'
+          label='"Let&apos;s start!"를 외치며 시작해봐요!'
           fontSize={17}
           fontWeight={'bold'}
           accentFontColor={'#444'}
           alignment={this.state.alignment}
           fontColor={'#888'}
         />
-        <MICButton tts="Let's name some words of food." />
+        <MICButton
+          isReady={this.state.isReady}
+          isTtsFinished={this.state.isTtsFinished}
+        />
       </View>
     );
   }

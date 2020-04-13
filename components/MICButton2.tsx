@@ -2,82 +2,23 @@ import React, {Component} from 'react';
 import {StyleSheet, View, Image, Platform} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import RadialGradient from 'react-native-radial-gradient';
-import Tts from 'react-native-tts';
-import Voice from 'react-native-voice';
 
 interface Props {
-  tts: string;
+  isReady: boolean;
+  isTtsFinished: boolean;
 }
 interface State {
   diameter: number;
-  isReady: boolean;
-  isTtsFinished: boolean;
-  stt: string;
 }
 
 class MICButton extends Component<Props, State> {
   state: State = {
     diameter: 90,
-    isReady: false,
-    isTtsFinished: false,
-    stt: 'yet',
   };
 
   constructor(props: Props) {
     super(props);
-    Tts.setDefaultLanguage('en-US');
-    // Voice.start('en-US');
   }
-
-  componentDidMount() {
-    this.setState({
-      isReady: true,
-    });
-    Voice.start('en-US');
-    Voice.onSpeechResults = this.onSpeechResultsHandler.bind(this);
-  }
-
-  onSpeechResultsHandler = (result: Object<string>) => {
-    alert(result.value[0]);
-
-    // 'xyz'.localeCompare('XyZ', undefined, { sensitivity: 'base' });
-
-    if (
-      result.value[0].localeCompare('hi', undefined, {sensitivity: 'accent'})
-    ) {
-      Voice.destroy().then(Voice.removeAllListeners);
-      this.setState({
-        stt: 'passed',
-        isReady: false,
-      });
-      setTimeout(() => {
-        this.ttsSpeaking();
-      }, 4000);
-    } else {
-      //re-try
-    }
-  };
-
-  ttsSpeaking = () => {
-    Tts.speak(
-      this.props.tts,
-      Platform.OS === 'ios'
-        ? {
-            iosVoiceId: 'com.apple.ttsbundle.siri_female_en-US_compact',
-            rate: 0.5,
-          }
-        : {
-            androidParams: {
-              KEY_PARAM_PAN: -1,
-              KEY_PARAM_VOLUME: 1,
-              KEY_PARAM_STREAM: 'STREAM_MUSIC',
-            },
-          },
-    );
-    Tts.addEventListener('tts-finish', () => {
-      this.setState({isReady: false, isTtsFinished: true});
-    });
-  };
 
   render() {
     const styles = StyleSheet.create({
@@ -121,17 +62,17 @@ class MICButton extends Component<Props, State> {
             angle={135}
             angleCenter={{x: 0.5, y: 0.5}}
             colors={
-              this.state.isReady ? ['#fff', '#fff'] : ['#e66465', '#9198e5']
+              this.props.isReady ? ['#fff', '#fff'] : ['#e66465', '#9198e5']
             }
             style={styles.button}>
             <Image
               source={
-                this.state.isTtsFinished
+                this.props.isTtsFinished
                   ? require('../resource/clear.png')
                   : require('../resource/mic.png')
               }
               style={
-                this.state.isTtsFinished
+                this.props.isTtsFinished
                   ? {width: 40, height: 35}
                   : {width: 20, height: 40}
               }

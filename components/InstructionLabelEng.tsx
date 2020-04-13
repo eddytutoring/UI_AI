@@ -33,7 +33,8 @@ class instructionLabelEng extends Component<Props, State> {
   }
 
   state: State = {
-    duration: 800,
+    duration: 700,
+    //duration: 800
   };
 
   opacity: any;
