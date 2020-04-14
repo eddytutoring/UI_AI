@@ -16,7 +16,7 @@ const tokenizer = new Tokenizer();
 interface Props {}
 interface State {
   fontSize: number;
-  alignment: 'center' | 'flex-start';
+  alignment: 'center' | 'flex-start' | undefined;
   fontWeight:
     | 'normal'
     | 'bold'

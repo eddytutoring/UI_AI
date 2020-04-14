@@ -6,7 +6,7 @@ interface Props {
   fontSize: number;
   accentFontColor: string;
   fontColor: string;
-  alignment: string;
+  alignment: 'center' | 'flex-start' | undefined;
   fontWeight:
     | 'normal'
     | 'bold'
@@ -37,6 +37,7 @@ class instructionLabelKor extends Component<Props, State> {
     Animated.timing(this.opacity, {
       toValue: 1,
       duration: 800,
+      useNativeDriver: true,
     }).start();
   }
 

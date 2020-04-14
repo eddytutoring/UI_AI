@@ -49,6 +49,7 @@ class instructionLabelEng extends Component<Props, State> {
       return Animated.timing(this.opacity[i], {
         toValue,
         duration: this.state.duration,
+        useNativeDriver: true,
       });
     });
 
