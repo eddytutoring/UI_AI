@@ -70,38 +70,37 @@ class instructionLabelKor extends Component<Props, State> {
     return (
       <Animated.View style={[styles.view, styles.textWrapper]}>
         {this.textArr.map((word, i) => {
-          return (
-            <>
-              <Animated.Text
-                style={{
-                  ...styles.text,
-                  color: this.props.accentFontColor,
-                }}>
-                {i % 2 === 1 && word !== '' ? '"' : ''}
-              </Animated.Text>
-              {word.split('').map((word, a) => {
-                return (
-                  <Animated.Text
-                    style={{
-                      ...styles.text,
-                      color:
-                        i % 2
-                          ? this.props.accentFontColor
-                          : this.props.fontColor,
-                    }}>
-                    {word}
-                  </Animated.Text>
-                );
-              })}
-              <Animated.Text
-                style={{
-                  ...styles.text,
-                  color: this.props.accentFontColor,
-                }}>
-                {i % 2 === 1 && word !== '' ? '"' : ''}
-              </Animated.Text>
-            </>
-          );
+          <Animated.Text
+            key={`${word}-${i}`}
+            style={{
+              ...styles.text,
+              color: this.props.accentFontColor,
+            }}>
+            {i % 2 === 1 && word !== '' ? '"' : ''}
+          </Animated.Text>;
+          {
+            word.split('').map((word2, a) => {
+              return (
+                <Animated.Text
+                  key={`${word2}-${a}`}
+                  style={{
+                    ...styles.text,
+                    color:
+                      i % 2 ? this.props.accentFontColor : this.props.fontColor,
+                  }}>
+                  {word2}
+                </Animated.Text>
+              );
+            });
+          }
+          <Animated.Text
+            key={`blank-${i}`}
+            style={{
+              ...styles.text,
+              color: this.props.accentFontColor,
+            }}>
+            {i % 2 === 1 && word !== '' ? '"' : ''}
+          </Animated.Text>;
         })}
       </Animated.View>
     );

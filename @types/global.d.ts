@@ -30,3 +30,8 @@ declare module 'react-native-voice' {
   function destroy(): any;
   function removeAllListeners(): void;
 }
+
+declare module '*.json' {
+  const value: any;
+  export default value;
+}

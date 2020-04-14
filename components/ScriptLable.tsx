@@ -32,6 +32,7 @@ class ScriptLable extends Component<Props, State> {
     Animated.timing(this.opacity, {
       toValue: 1,
       duration: 800,
+      useNativeDriver: false,
     }).start();
   }
 
