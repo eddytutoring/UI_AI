@@ -9,7 +9,7 @@ import Voice from 'react-native-voice';
 import similarity from 'string-similarity';
 import Tokenizer from 'wink-tokenizer';
 
-import {StyleSheet, View, Platform, ViewPagerAndroidBase} from 'react-native';
+import {StyleSheet, View, Platform, SafeAreaView} from 'react-native';
 
 const tokenizer = new Tokenizer();
 
@@ -92,14 +92,7 @@ class App extends Component<Props, State> {
 
     console.log(rating);
 
-    if (
-      rating >= 0.6
-      // result.value[0].localeCompare(
-      //   this.state.tts.replace('!', ''),
-      //   undefined,
-      //   {sensitivity: 'accent'},
-      // )
-    ) {
+    if (rating >= 0.6) {
       Voice.destroy().then(Voice.removeAllListeners);
       this.setState({
         isReady: false,
@@ -119,14 +112,6 @@ class App extends Component<Props, State> {
     Voice.start('en-US');
     Voice.onSpeechEnd = this.onSpeechEndHandler.bind(this);
   };
-
-  // else { //다시 재생해야 하는 경우
-  //   //틀린 경우
-  //   //icon change
-  //   Voice.destroy().then(Voice.removeAllListeners);
-  //   Voice.start('en-US');
-  //   Voice.onSpeechResults = this.onSpeechResultsHandler.bind(this);
-  // }
 
   ttsSpeaking() {
     Tts.speak(
@@ -173,8 +158,9 @@ class App extends Component<Props, State> {
     });
 
     return (
-      <View style={styles.view}>
-        {/* <View style={styles.input}>
+      <SafeAreaView style={{flex: 1}}>
+        <View style={styles.view}>
+          {/* <View style={styles.input}>
           <InputField
             label="이메일 또는 아이디"
             activeLabelFontSize={this.state.activeLabelFontSize}
@@ -191,40 +177,41 @@ class App extends Component<Props, State> {
           />
         </View> */}
 
-        <View style={styles.scripts}>
-          {/* <InstructionLabelEng
+          <View style={styles.scripts}>
+            {/* <InstructionLabelEng
             label="Let's start!"
             fontSize={this.state.fontSize}
             fontWeight={this.state.fontWeight}
           /> */}
 
-          {this.state.stt === 'yet' ? (
-            <ScriptLabel
-              label={this.state.tts}
-              fontSize={this.state.fontSize}
-              fontWeight={this.state.fontWeight}
-            />
-          ) : (
-            <InstructionLabelEng
-              label={this.state.tts}
-              fontSize={this.state.fontSize}
-              fontWeight={this.state.fontWeight}
-            />
-          )}
+            {this.state.stt === 'yet' ? (
+              <ScriptLabel
+                label={this.state.tts}
+                fontSize={this.state.fontSize}
+                fontWeight={this.state.fontWeight}
+              />
+            ) : (
+              <InstructionLabelEng
+                label={this.state.tts}
+                fontSize={this.state.fontSize}
+                fontWeight={this.state.fontWeight}
+              />
+            )}
+          </View>
+          <InstructionLabelKor
+            label='"Let&apos;s start!"를 외치며 시작해봐요!'
+            fontSize={17}
+            fontWeight={'bold'}
+            accentFontColor={'#444'}
+            alignment={this.state.alignment}
+            fontColor={'#888'}
+          />
+          <MICButton
+            isReady={this.state.isReady}
+            isTtsFinished={this.state.isTtsFinished}
+          />
         </View>
-        <InstructionLabelKor
-          label='"Let&apos;s start!"를 외치며 시작해봐요!'
-          fontSize={17}
-          fontWeight={'bold'}
-          accentFontColor={'#444'}
-          alignment={this.state.alignment}
-          fontColor={'#888'}
-        />
-        <MICButton
-          isReady={this.state.isReady}
-          isTtsFinished={this.state.isTtsFinished}
-        />
-      </View>
+      </SafeAreaView>
     );
   }
 }
