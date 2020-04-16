@@ -6,7 +6,8 @@ import {
   TouchableWithoutFeedback,
   SafeAreaView,
 } from 'react-native';
-import UI from './components/AIScreen';
+import UI from './components/AiScreen';
+import InstructionLabelKor from './components/InstructionLabelKor';
 
 interface Props {}
 interface State {

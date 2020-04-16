@@ -22,7 +22,7 @@ interface State {
   duration: number;
 }
 
-class instructionLabelEng extends Component<Props, State> {
+class InstructionLabelEng extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.opacity = [];
@@ -107,4 +107,4 @@ class instructionLabelEng extends Component<Props, State> {
   }
 }
 
-export default instructionLabelEng;
+export default InstructionLabelEng;

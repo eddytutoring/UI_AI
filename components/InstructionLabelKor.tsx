@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, Fragment} from 'react';
 import {Animated, Text, StyleSheet, View} from 'react-native';
 
 interface Props {
@@ -23,22 +23,26 @@ interface Props {
 }
 interface State {}
 
-class instructionLabelKor extends Component<Props, State> {
+class InstructionLabelKor extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.opacity = new Animated.Value(0);
-    this.textArr = this.props.label.trim().split('"');
+    this.textArr = this.replaceAll(this.props.label, '/', '"').split('"');
   }
 
-  opacity: Animated.Value | any;
+  opacity: any;
   textArr: Array<string>;
 
   componentDidMount() {
     Animated.timing(this.opacity, {
       toValue: 1,
       duration: 800,
-      useNativeDriver: true,
+      useNativeDriver: false,
     }).start();
+  }
+
+  replaceAll(str: string, search: string | any, replace: string | any) {
+    return str.split(search).join(replace);
   }
 
   render() {
@@ -70,41 +74,45 @@ class instructionLabelKor extends Component<Props, State> {
     return (
       <Animated.View style={[styles.view, styles.textWrapper]}>
         {this.textArr.map((word, i) => {
-          <Animated.Text
-            key={`${word}-${i}`}
-            style={{
-              ...styles.text,
-              color: this.props.accentFontColor,
-            }}>
-            {i % 2 === 1 && word !== '' ? '"' : ''}
-          </Animated.Text>;
-          {
-            word.split('').map((word2, a) => {
-              return (
-                <Animated.Text
-                  key={`${word2}-${a}`}
-                  style={{
-                    ...styles.text,
-                    color:
-                      i % 2 ? this.props.accentFontColor : this.props.fontColor,
-                  }}>
-                  {word2}
-                </Animated.Text>
-              );
-            });
-          }
-          <Animated.Text
-            key={`blank-${i}`}
-            style={{
-              ...styles.text,
-              color: this.props.accentFontColor,
-            }}>
-            {i % 2 === 1 && word !== '' ? '"' : ''}
-          </Animated.Text>;
+          return (
+            <Fragment key={`view-${i}`}>
+              <Animated.Text
+                key={`${word}-${i}`}
+                style={{
+                  ...styles.text,
+                  color: this.props.accentFontColor,
+                }}>
+                {i % 2 === 1 && word !== '' ? '"' : ''}
+              </Animated.Text>
+              {word.split('').map((word2, a) => {
+                return (
+                  <Animated.Text
+                    key={`${word2}-${a}`}
+                    style={{
+                      ...styles.text,
+                      color:
+                        i % 2
+                          ? this.props.accentFontColor
+                          : this.props.fontColor,
+                    }}>
+                    {word2}
+                  </Animated.Text>
+                );
+              })}
+              <Animated.Text
+                key={`blank-${i}`}
+                style={{
+                  ...styles.text,
+                  color: this.props.accentFontColor,
+                }}>
+                {`${i % 2 === 1 && word !== '' ? '"' : ''}`}
+              </Animated.Text>
+            </Fragment>
+          );
         })}
       </Animated.View>
     );
   }
 }
 
-export default instructionLabelKor;
+export default InstructionLabelKor;

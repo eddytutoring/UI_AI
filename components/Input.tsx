@@ -28,7 +28,7 @@ interface State {
   secure: boolean;
 }
 
-class App extends Component<Props, State> {
+class Input extends Component<Props, State> {
   state: State = {
     text: '',
     isFocused: false,
@@ -192,4 +192,4 @@ class App extends Component<Props, State> {
   }
 }
 
-export default App;
+export default Input;
