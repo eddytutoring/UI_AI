@@ -20,6 +20,7 @@ interface Props {
     | '800'
     | '900'
     | undefined;
+  duration: number;
 }
 interface State {}
 
@@ -27,7 +28,8 @@ class InstructionLabelKor extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.opacity = new Animated.Value(0);
-    this.textArr = this.replaceAll(this.props.label, '/', '"').split('"');
+    this.textArr = [];
+    console.log(this.props.label);
   }
 
   opacity: any;
@@ -36,19 +38,15 @@ class InstructionLabelKor extends Component<Props, State> {
   componentDidMount() {
     Animated.timing(this.opacity, {
       toValue: 1,
-      duration: 800,
+      duration: this.props.duration,
       useNativeDriver: false,
     }).start();
-  }
-
-  replaceAll(str: string, search: string | any, replace: string | any) {
-    return str.split(search).join(replace);
   }
 
   render() {
     const styles = StyleSheet.create({
       view: {
-        flex: 1,
+        // flex: 1,
         transform: [
           {
             translateY: this.opacity.interpolate({
@@ -70,6 +68,8 @@ class InstructionLabelKor extends Component<Props, State> {
         justifyContent: this.props.alignment,
       },
     });
+
+    this.textArr = this.props.label.trim().split('/');
 
     return (
       <Animated.View style={[styles.view, styles.textWrapper]}>

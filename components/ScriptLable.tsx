@@ -36,6 +36,10 @@ class ScriptLable extends Component<Props, State> {
     }).start();
   }
 
+  replaceAll(str: string, search: string | any, replace: string | any) {
+    return str.split(search).join(replace);
+  }
+
   render() {
     let color = this.opacity.interpolate({
       inputRange: [0, 1],
@@ -55,7 +59,7 @@ class ScriptLable extends Component<Props, State> {
     return (
       <Animated.View style={[styles.view]}>
         <Animated.Text style={{...styles.text, color: color}}>
-          {this.props.label}
+          {this.replaceAll(this.props.label, '/', '"')}
         </Animated.Text>
       </Animated.View>
     );

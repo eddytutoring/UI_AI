@@ -21,6 +21,7 @@ declare module 'react-native-tts' {
     code: 'tts-start' | 'tts-finish' | 'tts-cancel',
     event: Function,
   ): void;
+  function stop(): void;
 }
 
 declare module 'react-native-voice' {

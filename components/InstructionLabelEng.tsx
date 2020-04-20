@@ -17,6 +17,7 @@ interface Props {
     | '800'
     | '900'
     | undefined;
+  duration: number;
 }
 interface State {
   duration: number;
@@ -32,11 +33,6 @@ class InstructionLabelEng extends Component<Props, State> {
     });
   }
 
-  state: State = {
-    duration: 700,
-    //duration: 800
-  };
-
   opacity: any;
   textArr: Array<string>;
 
@@ -48,12 +44,12 @@ class InstructionLabelEng extends Component<Props, State> {
     const animations = this.textArr.map((word, i) => {
       return Animated.timing(this.opacity[i], {
         toValue,
-        duration: this.state.duration,
+        duration: this.props.duration,
         useNativeDriver: false,
       });
     });
 
-    Animated.stagger(this.state.duration / 1.5, animations).start();
+    Animated.stagger(this.props.duration / 1.5, animations).start();
   };
 
   render() {
