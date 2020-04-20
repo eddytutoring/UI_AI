@@ -190,6 +190,7 @@ class App extends Component<Props, State> {
               label="Let's start!"
               fontSize={this.state.fontSize}
               fontWeight={this.state.fontWeight}
+              duration={700}
             />
 
             {this.state.stt === 'yet' ? (
@@ -203,6 +204,7 @@ class App extends Component<Props, State> {
                 label={this.state.tts}
                 fontSize={this.state.fontSize}
                 fontWeight={this.state.fontWeight}
+                duration={700}
               />
             )}
           </View>
@@ -213,6 +215,7 @@ class App extends Component<Props, State> {
             accentFontColor={'#444'}
             alignment={this.state.alignment}
             fontColor={'#888'}
+            duration={700s}
           />
           <MICButton
             isReady={this.state.isReady}

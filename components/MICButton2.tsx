@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, Image, Platform} from 'react-native';
+import {StyleSheet, View, Image} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import RadialGradient from 'react-native-radial-gradient';
 
 interface Props {
   isReady: boolean;
-  isTtsFinished: boolean;
+  isSttFinished: 'finished' | 'yet';
 }
 interface State {
   diameter: number;
@@ -23,7 +23,7 @@ class MICButton extends Component<Props, State> {
   render() {
     const styles = StyleSheet.create({
       view: {
-        flex: 1,
+        // flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'center',
       },
@@ -67,12 +67,12 @@ class MICButton extends Component<Props, State> {
             style={styles.button}>
             <Image
               source={
-                this.props.isTtsFinished
+                this.props.isSttFinished == 'finished'
                   ? require('../resource/clear.png')
                   : require('../resource/mic.png')
               }
               style={
-                this.props.isTtsFinished
+                this.props.isSttFinished == 'finished'
                   ? {width: 40, height: 35}
                   : {width: 20, height: 40}
               }

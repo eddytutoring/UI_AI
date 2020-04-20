@@ -10,7 +10,7 @@ import {
 import InstructionLabelEng from './InstructionLabelEng';
 import InstructionLabelKor from './InstructionLabelKor';
 import ScriptLabel from './ScriptLable';
-import MICButton from './MICButton';
+import MICButton from './MICButton2';
 import Tts from 'react-native-tts';
 import Voice from 'react-native-voice';
 import similarity from 'string-similarity';
@@ -39,7 +39,8 @@ interface State {
     | undefined;
   count: number;
   isTtsFinished: boolean;
-  stt: string;
+  isSttFinished: 'finished' | 'yet';
+  stt: boolean;
   isReady: boolean;
   index: number;
   duration: number;
@@ -57,7 +58,8 @@ class AiScreen extends Component<Props, State> {
     fontWeight: '300',
     count: 0,
     isTtsFinished: false,
-    stt: 'finished',
+    isSttFinished: 'yet',
+    stt: false,
     isReady: false,
     index: 0,
     duration: 700,
@@ -72,8 +74,16 @@ class AiScreen extends Component<Props, State> {
 
   shouldComponentUpdate(nextProps: any, nextState: any) {
     return (
-      this.state.index !== nextState.index || this.state.stt !== nextState.stt
+      this.state.index !== nextState.index ||
+      this.state.isSttFinished !== nextState.isSttFinished ||
+      this.state.stt !== nextState.stt
     );
+  }
+
+  componentWillUnmount() {
+    Tts.stop();
+    Voice.destroy().then(Voice.removeAllListeners);
+    console.log('unmount');
   }
 
   ttsSpeaking(str: string) {
@@ -101,6 +111,9 @@ class AiScreen extends Component<Props, State> {
       //tts 먼저
       //stt기준으로 화면 전환
       // this.ttsSpeaking(this.props.obj[this.state.index].tts);
+      this.setState({
+        stt: true,
+      });
       Voice.start('en-US');
     }
     // else if (this.props.obj[this.state.index].stt) {
@@ -117,21 +130,23 @@ class AiScreen extends Component<Props, State> {
       ) {
         console.log(this.state.isTtsFinished);
         setTimeout(() => {
-          this.setState({index: this.state.index + 1}, () => {
+          this.setState({index: this.state.index + 1, stt: false}, () => {
             if (this.state.index === 1 || !this.props.obj[this.state.index].stt)
               this.ttsSpeaking(this.props.obj[this.state.index].tts);
             else {
               // Voice.start('en-US');
               if (this.props.obj[this.state.index]) {
-                this.setState(
-                  {
-                    stt: 'yet',
-                  },
-                  () => {
-                    console.log('yet');
-                    Voice.start('en-US');
-                  },
-                );
+                setTimeout(() => {
+                  this.setState(
+                    {
+                      isSttFinished: 'yet',
+                      stt: true,
+                    },
+                    () => {
+                      Voice.start('en-US');
+                    },
+                  );
+                }, 1000);
               } else {
                 Voice.start('en-US');
               }
@@ -200,7 +215,7 @@ class AiScreen extends Component<Props, State> {
         setTimeout(() => {
           this.setState(
             {
-              stt: 'finished',
+              isSttFinished: 'finished',
             },
             () => {
               this.ttsSpeaking(this.props.obj[this.state.index].tts);
@@ -222,7 +237,6 @@ class AiScreen extends Component<Props, State> {
       <SafeAreaView style={styles.view}>
         <TouchableWithoutFeedback
           onPress={() => {
-            Tts.stop();
             this.setState(
               {
                 isTtsFinished: true,
@@ -244,14 +258,23 @@ class AiScreen extends Component<Props, State> {
             />
           )}
           {obj[this.state.index].InstructionLabelEng &&
-            this.state.stt === 'finished' && (
+          this.state.isSttFinished === 'finished' ? (
+            <InstructionLabelEng
+              label={`${obj[this.state.index].InstructionLabelEng}`}
+              fontSize={this.state.fontSize}
+              fontWeight={this.state.fontWeight}
+              duration={this.state.duration}
+            />
+          ) : (
+            this.state.index === 1 && (
               <InstructionLabelEng
                 label={`${obj[this.state.index].InstructionLabelEng}`}
                 fontSize={this.state.fontSize}
                 fontWeight={this.state.fontWeight}
                 duration={this.state.duration}
               />
-            )}
+            )
+          )}
 
           {obj[this.state.index].InstructionLabelKor && (
             <InstructionLabelKor
@@ -262,6 +285,12 @@ class AiScreen extends Component<Props, State> {
               alignment="flex-start"
               fontColor={'#888'}
               duration={this.state.duration}
+            />
+          )}
+          {obj[this.state.index].stt && (
+            <MICButton
+              isReady={this.state.stt}
+              isSttFinished={this.state.isSttFinished}
             />
           )}
         </View>
@@ -276,6 +305,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     // alignItems: 'center',
     width: '90%',
+    backgroundColor: '#fafafa',
   },
   closeBtn: {
     position: 'absolute',
