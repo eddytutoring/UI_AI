@@ -29,7 +29,6 @@ class InstructionLabelKor extends Component<Props, State> {
     super(props);
     this.opacity = new Animated.Value(0);
     this.textArr = [];
-    console.log(this.props.label);
   }
 
   opacity: any;

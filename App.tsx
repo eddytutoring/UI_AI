@@ -7,7 +7,7 @@ import {
   TouchableWithoutFeedback,
   SafeAreaView,
 } from 'react-native';
-import UI from './components/AiScreen';
+import AiScreen from './components/AiScreen';
 import Voice from 'react-native-voice';
 import similarity from 'string-similarity';
 import Tokenizer from 'wink-tokenizer';
@@ -78,6 +78,12 @@ class App extends Component<Props, State> {
     }
   }
 
+  openAi() {
+    this.setState({
+      clicked: this.state.clicked === false ? true : false,
+    });
+  }
+
   onSpeechEndHandler = (event: Object) => {
     Voice.destroy().then(Voice.removeAllListeners);
     Voice.start('en-US');
@@ -88,14 +94,10 @@ class App extends Component<Props, State> {
     return (
       <SafeAreaView style={styles.view}>
         {this.state.clicked ? (
-          <UI obj={jsonArray} />
+          <AiScreen obj={jsonArray} onPressHandler={this.openAi.bind(this)} />
         ) : (
           <TouchableWithoutFeedback
-            onPress={() => {
-              this.setState({
-                clicked: true,
-              });
-            }}>
+            onPress={() => this.setState({clicked: true})}>
             <View style={styles.button}>
               <Text style={{color: 'white', fontWeight: '600', fontSize: 16}}>
                 click to open ai tutor
