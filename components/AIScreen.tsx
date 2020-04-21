@@ -44,6 +44,7 @@ interface State {
   isReady: boolean;
   index: number;
   duration: number;
+  unmount: boolean;
 }
 
 class AiScreen extends Component<Props, State> {
@@ -63,11 +64,11 @@ class AiScreen extends Component<Props, State> {
     isReady: false,
     index: 0,
     duration: 700,
+    unmount: false,
   };
-  index = 0;
 
   componentDidMount() {
-    this.ttsSpeaking(this.props.obj[this.index].tts);
+    this.ttsSpeaking(this.props.obj[this.state.index].tts);
     Voice.onSpeechResults = this.onSpeechResultsHandler.bind(this);
     Voice.onSpeechEnd = this.onSpeechEndHandler.bind(this);
   }
@@ -107,55 +108,60 @@ class AiScreen extends Component<Props, State> {
   ttsCallback() {
     console.log(this.state.index);
     console.log(this.props.obj.length - 1);
-    if (this.state.index === 1) {
-      //tts 먼저
-      //stt기준으로 화면 전환
-      // this.ttsSpeaking(this.props.obj[this.state.index].tts);
-      this.setState({
-        stt: true,
-      });
-      Voice.start('en-US');
-    }
-    // else if (this.props.obj[this.state.index].stt) {
-    //   Voice.start('en-US');
-    //   //stt 먼저 실행해야
-    //   //stt 완료 이벤트 후 tts 나와야
-    //   //englabel도 같이 늦게 나와야
-    // }
-    else {
-      //tts기준으로 화면 전환
-      if (
-        this.state.index < this.props.obj.length - 1 &&
-        !this.state.isTtsFinished
-      ) {
-        console.log(this.state.isTtsFinished);
-        setTimeout(() => {
-          this.setState({index: this.state.index + 1, stt: false}, () => {
-            if (this.state.index === 1 || !this.props.obj[this.state.index].stt)
-              this.ttsSpeaking(this.props.obj[this.state.index].tts);
-            else {
-              // Voice.start('en-US');
-              if (this.props.obj[this.state.index]) {
-                setTimeout(() => {
-                  this.setState(
-                    {
-                      isSttFinished: 'yet',
-                      stt: true,
-                    },
-                    () => {
-                      Voice.start('en-US');
-                    },
-                  );
-                }, 1000);
-              } else {
-                Voice.start('en-US');
+    if (!this.state.unmount) {
+      if (this.state.index === 1) {
+        //tts 먼저
+        //stt기준으로 화면 전환
+        // this.ttsSpeaking(this.props.obj[this.state.index].tts);
+        this.setState({
+          stt: true,
+        });
+        Voice.start('en-US');
+      }
+      // else if (this.props.obj[this.state.index].stt) {
+      //   Voice.start('en-US');
+      //   //stt 먼저 실행해야
+      //   //stt 완료 이벤트 후 tts 나와야
+      //   //englabel도 같이 늦게 나와야
+      // }
+      else {
+        //tts기준으로 화면 전환
+        if (
+          this.state.index < this.props.obj.length - 1 &&
+          !this.state.isTtsFinished
+        ) {
+          console.log(this.state.isTtsFinished);
+          setTimeout(() => {
+            this.setState({index: this.state.index + 1, stt: false}, () => {
+              if (
+                this.state.index === 1 ||
+                !this.props.obj[this.state.index].stt
+              )
+                this.ttsSpeaking(this.props.obj[this.state.index].tts);
+              else {
+                // Voice.start('en-US');
+                if (this.props.obj[this.state.index]) {
+                  setTimeout(() => {
+                    this.setState(
+                      {
+                        isSttFinished: 'yet',
+                        stt: true,
+                      },
+                      () => {
+                        Voice.start('en-US');
+                      },
+                    );
+                  }, 1000);
+                } else {
+                  Voice.start('en-US');
+                }
               }
-            }
-          });
-        }, 2000);
-      } else {
-        Tts.stop();
-        console.log('completed the last page');
+            });
+          }, 2000);
+        } else {
+          Tts.stop();
+          console.log('completed the last page');
+        }
       }
     }
   }
@@ -239,6 +245,7 @@ class AiScreen extends Component<Props, State> {
           onPress={() => {
             this.setState(
               {
+                unmount: true,
                 isTtsFinished: true,
               },
               this.props.onPressHandler,
