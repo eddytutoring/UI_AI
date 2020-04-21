@@ -24,7 +24,7 @@ class MICButton extends Component<Props, State> {
     const styles = StyleSheet.create({
       view: {
         // flex: 1,
-        justifyContent: 'flex-start',
+        // justifyContent: 'center',
         alignItems: 'center',
       },
       button: {

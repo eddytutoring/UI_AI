@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Animated, StyleSheet} from 'react-native';
+import {Animated, StyleSheet, View} from 'react-native';
 
 interface Props {
   label: string;
@@ -54,10 +54,6 @@ class InstructionLabelEng extends Component<Props, State> {
 
   render() {
     const styles = StyleSheet.create({
-      view: {
-        // flex: 1,
-        justifyContent: 'center',
-      },
       text: {
         fontSize: this.props.fontSize,
         fontWeight: this.props.fontWeight,
@@ -70,7 +66,7 @@ class InstructionLabelEng extends Component<Props, State> {
     });
 
     return (
-      <Animated.View style={[styles.view, styles.textWrapper]}>
+      <Animated.View style={[styles.textWrapper]}>
         {this.textArr.map((word, i) => {
           return (
             <Animated.Text

@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
-import ScriptLabel from './ScriptLable';
+import ScriptLabel from './ScriptLabel';
 import InstructionLabelEng from './InstructionLabelEng';
 import InstructionLabelKor from './InstructionLabelKor';
-import MICButton from './MICButton2';
+import MICButton from './MICButton';
 import InputField from './Input';
 import Tts from 'react-native-tts';
 import Voice from 'react-native-voice';

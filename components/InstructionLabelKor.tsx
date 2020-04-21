@@ -45,7 +45,6 @@ class InstructionLabelKor extends Component<Props, State> {
   render() {
     const styles = StyleSheet.create({
       view: {
-        // flex: 1,
         transform: [
           {
             translateY: this.opacity.interpolate({

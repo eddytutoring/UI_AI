@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Animated, Text, StyleSheet, View} from 'react-native';
+import {Animated, StyleSheet} from 'react-native';
 
 interface Props {
   label: string;
@@ -17,6 +17,8 @@ interface Props {
     | '800'
     | '900'
     | undefined;
+  paddingHorizontal: number;
+  alignment: 'center' | 'left';
 }
 interface State {}
 
@@ -31,7 +33,7 @@ class ScriptLable extends Component<Props, State> {
   componentDidMount() {
     Animated.timing(this.opacity, {
       toValue: 1,
-      duration: 800,
+      duration: 700,
       useNativeDriver: false,
     }).start();
   }
@@ -48,11 +50,12 @@ class ScriptLable extends Component<Props, State> {
 
     const styles = StyleSheet.create({
       view: {
-        // flex: 1,
+        paddingHorizontal: this.props.paddingHorizontal,
       },
       text: {
         fontSize: this.props.fontSize,
         fontWeight: this.props.fontWeight,
+        textAlign: this.props.alignment,
       },
     });
 

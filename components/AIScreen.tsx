@@ -9,8 +9,8 @@ import {
 } from 'react-native';
 import InstructionLabelEng from './InstructionLabelEng';
 import InstructionLabelKor from './InstructionLabelKor';
-import ScriptLabel from './ScriptLable';
-import MICButton from './MICButton2';
+import ScriptLabel from './ScriptLabel';
+import MICButton from './MICButton';
 import Tts from 'react-native-tts';
 import Voice from 'react-native-voice';
 import similarity from 'string-similarity';
@@ -37,31 +37,25 @@ interface State {
     | '800'
     | '900'
     | undefined;
-  count: number;
-  isTtsFinished: boolean;
   isSttFinished: 'finished' | 'yet';
   stt: boolean;
-  isReady: boolean;
   index: number;
   duration: number;
   unmount: boolean;
 }
 
-class AiScreen extends Component<Props, State> {
+class AiScreen2 extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     Tts.setDefaultLanguage('en-US');
-    Tts.addEventListener('tts-finish', this.ttsCallback.bind(this));
+    // Tts.addEventListener('tts-finish', this.ttsCallback.bind(this));
   }
 
   state: State = {
     fontSize: 25,
     fontWeight: '300',
-    count: 0,
-    isTtsFinished: false,
     isSttFinished: 'yet',
     stt: false,
-    isReady: false,
     index: 0,
     duration: 700,
     unmount: false,
@@ -113,9 +107,11 @@ class AiScreen extends Component<Props, State> {
         //tts 먼저
         //stt기준으로 화면 전환
         // this.ttsSpeaking(this.props.obj[this.state.index].tts);
-        this.setState({
-          stt: true,
-        });
+        setTimeout(() => {
+          this.setState({
+            stt: true,
+          });
+        }, 500);
         Voice.start('en-US');
       }
       // else if (this.props.obj[this.state.index].stt) {
@@ -126,11 +122,8 @@ class AiScreen extends Component<Props, State> {
       // }
       else {
         //tts기준으로 화면 전환
-        if (
-          this.state.index < this.props.obj.length - 1 &&
-          !this.state.isTtsFinished
-        ) {
-          console.log(this.state.isTtsFinished);
+        if (this.state.index < this.props.obj.length - 1) {
+          console.log(this.state.unmount);
           setTimeout(() => {
             this.setState({index: this.state.index + 1, stt: false}, () => {
               if (
@@ -238,6 +231,13 @@ class AiScreen extends Component<Props, State> {
   };
 
   render() {
+    {
+      setTimeout(() => {
+        this.setState({
+          index: this.state.index + 1,
+        });
+      }, 3000);
+    }
     const {obj} = this.props;
     return (
       <SafeAreaView style={styles.view}>
@@ -246,7 +246,6 @@ class AiScreen extends Component<Props, State> {
             this.setState(
               {
                 unmount: true,
-                isTtsFinished: true,
               },
               this.props.onPressHandler,
             );
@@ -258,48 +257,97 @@ class AiScreen extends Component<Props, State> {
         </TouchableWithoutFeedback>
         <View style={styles.contents}>
           {obj[this.state.index].ScriptLabel && (
-            <ScriptLabel
-              label={obj[this.state.index].ScriptLabel}
-              fontSize={this.state.fontSize}
-              fontWeight={this.state.fontWeight}
-            />
+            <View
+              style={
+                this.state.index !== 0 &&
+                this.state.index !== this.props.obj.length - 1
+                  ? styles.scriptView
+                  : styles.scriptViewFirst
+              }>
+              {this.state.index !== 0 &&
+              this.state.index !== this.props.obj.length - 1 ? null : (
+                <Image
+                  style={styles.chipImage}
+                  source={require('../resource/chip.png')}
+                />
+              )}
+              <ScriptLabel
+                label={obj[this.state.index].ScriptLabel}
+                fontSize={
+                  this.state.index !== 0 &&
+                  this.state.index !== this.props.obj.length - 1
+                    ? this.state.fontSize
+                    : 13
+                }
+                fontWeight={
+                  this.state.index !== 0 &&
+                  this.state.index !== this.props.obj.length - 1
+                    ? this.state.fontWeight
+                    : 'bold'
+                }
+                paddingHorizontal={
+                  this.state.index !== 0 &&
+                  this.state.index !== this.props.obj.length - 1
+                    ? 0
+                    : 20
+                }
+                alignment={
+                  this.state.index !== 0 &&
+                  this.state.index !== this.props.obj.length - 1
+                    ? 'left'
+                    : 'center'
+                }
+              />
+            </View>
           )}
-          {obj[this.state.index].InstructionLabelEng &&
-          this.state.isSttFinished === 'finished' ? (
-            <InstructionLabelEng
-              label={`${obj[this.state.index].InstructionLabelEng}`}
-              fontSize={this.state.fontSize}
-              fontWeight={this.state.fontWeight}
-              duration={this.state.duration}
-            />
-          ) : (
-            this.state.index === 1 && (
+          {obj[this.state.index].InstructionLabelEng && (
+            <View style={styles.engView}>
               <InstructionLabelEng
-                label={`${obj[this.state.index].InstructionLabelEng}`}
+                label={
+                  this.state.isSttFinished === 'finished'
+                    ? `${obj[this.state.index].InstructionLabelEng}`
+                    : this.state.index !== 1
+                    ? ''
+                    : `${obj[this.state.index].InstructionLabelEng}`
+                }
                 fontSize={this.state.fontSize}
                 fontWeight={this.state.fontWeight}
                 duration={this.state.duration}
               />
-            )
+            </View>
           )}
-
-          {obj[this.state.index].InstructionLabelKor && (
-            <InstructionLabelKor
-              label={`${obj[this.state.index].InstructionLabelKor}`}
-              fontSize={17}
-              fontWeight={'bold'}
-              accentFontColor={'#444'}
-              alignment="flex-start"
-              fontColor={'#888'}
-              duration={this.state.duration}
-            />
-          )}
-          {obj[this.state.index].stt && (
-            <MICButton
-              isReady={this.state.stt}
-              isSttFinished={this.state.isSttFinished}
-            />
-          )}
+          <View
+            style={
+              this.state.index !== 0 &&
+              this.state.index !== this.props.obj.length - 1
+                ? styles.korView
+                : styles.korViewFirst
+            }>
+            {obj[this.state.index].InstructionLabelKor && (
+              <InstructionLabelKor
+                label={`${obj[this.state.index].InstructionLabelKor}`}
+                fontSize={16}
+                fontWeight={'bold'}
+                accentFontColor={'#444'}
+                alignment={
+                  this.state.index !== 0 &&
+                  this.state.index !== this.props.obj.length - 1
+                    ? 'flex-start'
+                    : 'center'
+                }
+                fontColor={'#888'}
+                duration={this.state.duration}
+              />
+            )}
+          </View>
+          <View style={styles.micView}>
+            {obj[this.state.index].stt && (
+              <MICButton
+                isReady={this.state.stt}
+                isSttFinished={this.state.isSttFinished}
+              />
+            )}
+          </View>
         </View>
       </SafeAreaView>
     );
@@ -309,10 +357,33 @@ class AiScreen extends Component<Props, State> {
 const styles = StyleSheet.create({
   view: {
     flex: 1,
-    justifyContent: 'center',
-    // alignItems: 'center',
     width: '90%',
     backgroundColor: '#fafafa',
+  },
+  scriptView: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  scriptViewFirst: {
+    flex: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  engView: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  korView: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  korViewFirst: {
+    flex: 1,
+    justifyContent: 'flex-start',
+  },
+  micView: {
+    flex: 1,
+    justifyContent: 'center',
   },
   closeBtn: {
     position: 'absolute',
@@ -327,6 +398,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     justifyContent: 'center',
   },
+  chipImage: {
+    width: 100,
+    height: 100,
+    marginBottom: 20,
+  },
 });
 
-export default AiScreen;
+export default AiScreen2;
