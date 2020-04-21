@@ -29,12 +29,23 @@ class InstructionLabelKor extends Component<Props, State> {
     super(props);
     this.opacity = new Animated.Value(0);
     this.textArr = [];
+    console.log('mount');
   }
 
   opacity: any;
   textArr: Array<string>;
 
   componentDidMount() {
+    this.animationTiming();
+  }
+
+  shouldComponentUpdate(nextProps: any, nextState: any) {
+    this.opacity = new Animated.Value(0);
+    this.animationTiming();
+    return this.props.label !== nextProps.label;
+  }
+
+  animationTiming() {
     Animated.timing(this.opacity, {
       toValue: 1,
       duration: this.props.duration,

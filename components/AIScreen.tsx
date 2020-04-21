@@ -236,7 +236,7 @@ class AiScreen2 extends Component<Props, State> {
         this.setState({
           index: this.state.index + 1,
         });
-      }, 3000);
+      }, 5000);
     }
     const {obj} = this.props;
     return (
@@ -297,6 +297,7 @@ class AiScreen2 extends Component<Props, State> {
                     ? 'left'
                     : 'center'
                 }
+                duration={this.state.duration}
               />
             </View>
           )}

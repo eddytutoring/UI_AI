@@ -19,6 +19,7 @@ interface Props {
     | undefined;
   paddingHorizontal: number;
   alignment: 'center' | 'left';
+  duration: number;
 }
 interface State {}
 
@@ -31,15 +32,25 @@ class ScriptLable extends Component<Props, State> {
   opacity: Animated.Value | any;
 
   componentDidMount() {
-    Animated.timing(this.opacity, {
-      toValue: 1,
-      duration: 700,
-      useNativeDriver: false,
-    }).start();
+    this.animationTiming();
+  }
+
+  shouldComponentUpdate(nextProps: any, nextState: any) {
+    this.opacity = new Animated.Value(0);
+    this.animationTiming();
+    return this.props.label !== nextProps.label;
   }
 
   replaceAll(str: string, search: string | any, replace: string | any) {
     return str.split(search).join(replace);
+  }
+
+  animationTiming() {
+    Animated.timing(this.opacity, {
+      toValue: 1,
+      duration: this.props.duration,
+      useNativeDriver: false,
+    }).start();
   }
 
   render() {
