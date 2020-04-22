@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   StyleSheet,
   TouchableWithoutFeedback,
+  EventSubscription,
 } from 'react-native';
 import InstructionLabelEng from './InstructionLabelEng';
 import InstructionLabelKor from './InstructionLabelKor';
@@ -49,7 +50,12 @@ class AiScreen extends Component<Props, State> {
     super(props);
     Tts.setDefaultLanguage('en-US');
     Tts.addEventListener('tts-finish', this.ttsCallback.bind(this));
+    Voice.onSpeechStart = this.onSpeechStartHandler.bind(this);
+    Voice.onSpeechResults = this.onSpeechResultsHandler.bind(this);
+    Voice.onSpeechEnd = this.onSpeechEndHandler.bind(this);
   }
+
+  // subscribe: EventSubscription;
 
   state: State = {
     fontSize: 25,
@@ -63,13 +69,6 @@ class AiScreen extends Component<Props, State> {
 
   componentDidMount() {
     this.ttsSpeaking(this.props.obj[this.state.index].tts);
-    Voice.onSpeechStart = this.onSpeechStartHandler.bind(this);
-    Voice.onSpeechResults = this.onSpeechResultsHandler.bind(this);
-    Voice.onSpeechEnd = this.onSpeechEndHandler.bind(this);
-  }
-
-  onSpeechStartHandler() {
-    console.log('voice start');
   }
 
   shouldComponentUpdate(nextProps: any, nextState: any) {
@@ -177,6 +176,10 @@ class AiScreen extends Component<Props, State> {
         sentence.toLowerCase().replace('!', ''),
       ),
     ]);
+  }
+
+  onSpeechStartHandler() {
+    console.log('voice start');
   }
 
   onSpeechResultsHandler(result: Object | any) {

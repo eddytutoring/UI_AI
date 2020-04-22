@@ -18,8 +18,12 @@ declare module 'react-native-tts' {
   function setDefaultLanguage(langProps: string): void;
   function speak(str: string, osSettings: Object): void;
   function addEventListener(
-    code: 'tts-start' | 'tts-finish' | 'tts-cancel',
-    event: Function,
+    type: 'tts-start' | 'tts-finish' | 'tts-cancel',
+    handler: Function,
+  ): void;
+  function removeEventListener(
+    type: 'tts-start' | 'tts-finish' | 'tts-cancel',
+    handler: Function,
   ): void;
   function stop(): void;
 }

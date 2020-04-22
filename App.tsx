@@ -27,25 +27,36 @@ class App extends Component<Props, State> {
     permission: true,
   };
 
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   return this.state.clicked === this.state.permission;
+  // }
+
   async requestPermission() {
     console.log('request start');
     this.setState({permission: false});
     try {
-      const granted = await PermissionsAndroid.request(
+      const granted = await PermissionsAndroid.check(
         PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-        {
-          title: '마이크 접근 권한 필요',
-          message: 'ai 튜터를 실행하기 위해 마이크 접근 권한이 필요합니다.',
-          buttonNegative: '접근 거부',
-          buttonPositive: '접근 허용',
-        },
       );
-      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+      if (!granted) {
+        const request = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+          {
+            title: '마이크 접근 권한 필요',
+            message: 'ai 튜터를 실행하기 위해 마이크 접근 권한이 필요합니다.',
+            buttonNegative: '접근 거부',
+            buttonPositive: '접근 허용',
+          },
+        );
+        if (request === 'granted') {
+          this.setState({
+            permission: true,
+          });
+          console.log('after request: ' + request);
+        }
         console.log('need request');
         console.log('current status: ' + granted);
       } else {
-        console.log(Platform.OS);
-        console.log(granted);
         this.setState({
           permission: true,
         });
