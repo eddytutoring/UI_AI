@@ -27,10 +27,6 @@ class App extends Component<Props, State> {
     permission: true,
   };
 
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   return this.state.clicked === this.state.permission;
-  // }
-
   async requestPermission() {
     console.log('request start');
     this.setState({permission: false});

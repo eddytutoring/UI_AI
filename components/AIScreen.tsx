@@ -48,14 +48,14 @@ interface State {
 class AiScreen extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
+    this.listener = this.ttsCallback.bind(this);
     Tts.setDefaultLanguage('en-US');
-    Tts.addEventListener('tts-finish', this.ttsCallback.bind(this));
+    Tts.addEventListener('tts-finish', this.listener);
     Voice.onSpeechStart = this.onSpeechStartHandler.bind(this);
     Voice.onSpeechResults = this.onSpeechResultsHandler.bind(this);
     Voice.onSpeechEnd = this.onSpeechEndHandler.bind(this);
   }
-
-  // subscribe: EventSubscription;
+  listener: any;
 
   state: State = {
     fontSize: 25,
@@ -88,6 +88,7 @@ class AiScreen extends Component<Props, State> {
   }
 
   componentWillUnmount() {
+    Tts.removeEventListener('tts-finish', this.listener);
     Tts.stop();
     Voice.destroy().then(Voice.removeAllListeners);
     console.log('unmount');
