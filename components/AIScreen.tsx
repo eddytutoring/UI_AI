@@ -44,17 +44,17 @@ interface State {
   unmount: boolean;
 }
 
-class AiScreen2 extends Component<Props, State> {
+class AiScreen extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     Tts.setDefaultLanguage('en-US');
-    // Tts.addEventListener('tts-finish', this.ttsCallback.bind(this));
+    Tts.addEventListener('tts-finish', this.ttsCallback.bind(this));
   }
 
   state: State = {
     fontSize: 25,
     fontWeight: '300',
-    isSttFinished: 'yet',
+    isSttFinished: 'finished',
     stt: false,
     index: 0,
     duration: 700,
@@ -63,11 +63,24 @@ class AiScreen2 extends Component<Props, State> {
 
   componentDidMount() {
     this.ttsSpeaking(this.props.obj[this.state.index].tts);
+    Voice.onSpeechStart = this.onSpeechStartHandler.bind(this);
     Voice.onSpeechResults = this.onSpeechResultsHandler.bind(this);
     Voice.onSpeechEnd = this.onSpeechEndHandler.bind(this);
   }
 
+  onSpeechStartHandler() {
+    console.log('voice start');
+  }
+
   shouldComponentUpdate(nextProps: any, nextState: any) {
+    console.log(
+      'finished: ' +
+        this.state.isSttFinished +
+        ' / stt: ' +
+        this.state.stt +
+        ' / index: ' +
+        this.state.index,
+    );
     return (
       this.state.index !== nextState.index ||
       this.state.isSttFinished !== nextState.isSttFinished ||
@@ -104,71 +117,53 @@ class AiScreen2 extends Component<Props, State> {
     console.log(this.props.obj.length - 1);
     if (!this.state.unmount) {
       if (this.state.index === 1) {
+        //tts: Let's start 끝나고
         //tts 먼저
         //stt기준으로 화면 전환
-        // this.ttsSpeaking(this.props.obj[this.state.index].tts);
         setTimeout(() => {
           this.setState({
             stt: true,
           });
         }, 500);
-        Voice.start('en-US');
-      }
-      // else if (this.props.obj[this.state.index].stt) {
-      //   Voice.start('en-US');
-      //   //stt 먼저 실행해야
-      //   //stt 완료 이벤트 후 tts 나와야
-      //   //englabel도 같이 늦게 나와야
-      // }
-      else {
+        Voice.start('en-US'); //stt
+      } else {
         //tts기준으로 화면 전환
         if (this.state.index < this.props.obj.length - 1) {
+          //아직 더 남았을 경우
           console.log(this.state.unmount);
           setTimeout(() => {
             this.setState({index: this.state.index + 1, stt: false}, () => {
+              //index++
+              //다음장 넘김
               if (
                 this.state.index === 1 ||
-                !this.props.obj[this.state.index].stt
-              )
-                this.ttsSpeaking(this.props.obj[this.state.index].tts);
-              else {
-                // Voice.start('en-US');
-                if (this.props.obj[this.state.index]) {
-                  setTimeout(() => {
-                    this.setState(
-                      {
-                        isSttFinished: 'yet',
-                        stt: true,
-                      },
-                      () => {
-                        Voice.start('en-US');
-                      },
-                    );
-                  }, 1000);
-                } else {
-                  Voice.start('en-US');
-                }
+                !this.props.obj[this.state.index].stt //2번째 페이지 또는 stt가 없는 페이지
+              ) {
+                this.setState({
+                  isSttFinished: 'yet',
+                });
+                this.ttsSpeaking(this.props.obj[this.state.index].tts); //tts
+              } else {
+                //2번째 페이지가 아니면서 stt가 있는경우
+                this.setState(
+                  {
+                    stt: true,
+                  },
+                  () => {
+                    Voice.start('en-US'); //stt
+                  },
+                );
               }
             });
-          }, 2000);
+          }, 1000);
         } else {
+          //마지막 페이지까지 끝난경우
           Tts.stop();
           console.log('completed the last page');
         }
       }
     }
   }
-
-  // userSpeaking() {
-  //   setTimeout(() => {
-  //     // this.setState({
-  //     //   isReady: true,
-  //     // });
-  //     Voice.start('en-US');
-  //     Voice.onSpeechResults = this.onSpeechResultsHandler.bind(this);
-  //     Voice.onSpeechEnd = this.onSpeechEndHandler.bind(this);
-  //   }, 800);
-  // }
 
   processNLU(answerSentence: string, candidateList: string[]) {
     const answerWord = tokenizer
@@ -195,49 +190,48 @@ class AiScreen2 extends Component<Props, State> {
       bestMatch: {target, rating},
     } = accuracy;
 
-    if (rating >= 0.75) {
-      Voice.destroy().then(Voice.removeAllListeners);
+    if (rating >= 0.7) {
+      //통과한 경우
+      Voice.destroy().then(Voice.removeAllListeners); //voice 자원 해제
       console.log('passed');
-
       if (this.state.index === 1) {
+        //첫째장 인경우
         setTimeout(() => {
           this.setState(
             {
-              index: this.state.index + 1,
+              index: this.state.index + 1, //2초 후 인덱스 증가
             },
             () => {
-              this.ttsSpeaking(this.props.obj[this.state.index].tts);
+              this.ttsSpeaking(this.props.obj[this.state.index].tts); //인덱스 증가 후 tts
             },
           );
-        }, 2000);
+        }, 1000);
       } else {
-        setTimeout(() => {
-          this.setState(
-            {
-              isSttFinished: 'finished',
-            },
-            () => {
+        //첫째장이 아닌 경우
+        console.log('need to change');
+        this.setState(
+          {
+            isSttFinished: 'finished',
+          },
+          () => {
+            setTimeout(() => {
               this.ttsSpeaking(this.props.obj[this.state.index].tts);
-            },
-          );
-        }, 2000);
+            }, 1000);
+          },
+        );
       }
+    } else {
+      //말했는데 실패한 경우
+      Voice.stop();
+      Voice.start('en-US'); //다시 듣기
     }
   }
 
   onSpeechEndHandler = (event: Object) => {
-    Voice.destroy().then(Voice.removeAllListeners);
-    Voice.onSpeechEnd = this.onSpeechEndHandler.bind(this);
+    console.log('voice end');
   };
 
   render() {
-    {
-      setTimeout(() => {
-        this.setState({
-          index: this.state.index + 1,
-        });
-      }, 5000);
-    }
     const {obj} = this.props;
     return (
       <SafeAreaView style={styles.view}>
@@ -304,16 +298,11 @@ class AiScreen2 extends Component<Props, State> {
           {obj[this.state.index].InstructionLabelEng && (
             <View style={styles.engView}>
               <InstructionLabelEng
-                label={
-                  this.state.isSttFinished === 'finished'
-                    ? `${obj[this.state.index].InstructionLabelEng}`
-                    : this.state.index !== 1
-                    ? ''
-                    : `${obj[this.state.index].InstructionLabelEng}`
-                }
+                label={`${obj[this.state.index].InstructionLabelEng}`}
                 fontSize={this.state.fontSize}
                 fontWeight={this.state.fontWeight}
                 duration={this.state.duration}
+                isSttFinished={this.state.isSttFinished}
               />
             </View>
           )}
@@ -406,4 +395,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AiScreen2;
+export default AiScreen;

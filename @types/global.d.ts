@@ -26,10 +26,13 @@ declare module 'react-native-tts' {
 
 declare module 'react-native-voice' {
   function start(langType: string): void;
+  function onSpeechStart(event: any): void;
   function onSpeechResults(event: any): void;
   function onSpeechEnd(event: Object): void;
   function destroy(): any;
   function removeAllListeners(): void;
+  function onSpeechRecognized(): any;
+  function stop(): void;
 }
 
 declare module '*.json' {

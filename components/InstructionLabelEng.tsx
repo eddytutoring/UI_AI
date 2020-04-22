@@ -18,6 +18,7 @@ interface Props {
     | '900'
     | undefined;
   duration: number;
+  isSttFinished: 'finished' | 'yet';
 }
 interface State {
   duration: number;
@@ -27,7 +28,9 @@ class InstructionLabelEng extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.opacity = [];
-    this.textArr = this.props.label.trim().split(' ');
+    if (this.props.isSttFinished === 'finished')
+      this.textArr = this.props.label.trim().split(' ');
+    else this.textArr = [];
     this.textArr.forEach((text, i) => {
       this.opacity[i] = new Animated.Value(0);
     });
@@ -40,6 +43,15 @@ class InstructionLabelEng extends Component<Props, State> {
     this.animated();
   }
 
+  shouldComponentUpdate(nextProps: any, nextState: any) {
+    this.textArr = this.props.label.trim().split(' ');
+    this.textArr.forEach((text, i) => {
+      this.opacity[i] = new Animated.Value(0);
+    });
+    this.animated();
+    return this.props.isSttFinished !== nextProps.isSttFinished;
+  }
+
   animated = (toValue = 1) => {
     const animations = this.textArr.map((word, i) => {
       return Animated.timing(this.opacity[i], {
@@ -48,7 +60,6 @@ class InstructionLabelEng extends Component<Props, State> {
         useNativeDriver: false,
       });
     });
-
     Animated.stagger(this.props.duration / 1.5, animations).start();
   };
 
