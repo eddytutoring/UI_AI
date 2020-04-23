@@ -6,7 +6,6 @@ import {
   SafeAreaView,
   StyleSheet,
   TouchableWithoutFeedback,
-  EventSubscription,
 } from 'react-native';
 import InstructionLabelEng from './InstructionLabelEng';
 import InstructionLabelKor from './InstructionLabelKor';
@@ -54,7 +53,9 @@ class AiScreen extends Component<Props, State> {
     Voice.onSpeechStart = this.onSpeechStartHandler.bind(this);
     Voice.onSpeechResults = this.onSpeechResultsHandler.bind(this);
     Voice.onSpeechEnd = this.onSpeechEndHandler.bind(this);
+    if (Platform.OS === 'ios') Tts.setIgnoreSilentSwitch(false);
   }
+
   listener: any;
 
   state: State = {

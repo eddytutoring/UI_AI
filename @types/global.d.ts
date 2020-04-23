@@ -26,6 +26,7 @@ declare module 'react-native-tts' {
     handler: Function,
   ): void;
   function stop(): void;
+  function setIgnoreSilentSwitch(option: boolean): any;
 }
 
 declare module 'react-native-voice' {
