@@ -12,7 +12,7 @@ import InstructionLabelKor from './InstructionLabelKor';
 import ScriptLabel from './ScriptLabel';
 import MICButton from './MICButton';
 import Tts from 'react-native-tts';
-import Voice from 'react-native-voice';
+import Voice from '@react-native-community/voice';
 import similarity from 'string-similarity';
 import Tokenizer from 'wink-tokenizer';
 
@@ -47,16 +47,19 @@ interface State {
 class AiScreen extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.listener = this.ttsCallback.bind(this);
+    this.finishListener = this.ttsCallback.bind(this);
+    this.cancelListener = this.ttsCanceled.bind(this);
     Tts.setDefaultLanguage('en-US');
-    Tts.addEventListener('tts-finish', this.listener);
+    Tts.addEventListener('tts-finish', this.finishListener);
+    Tts.addEventListener('tts-cancel', this.cancelListener);
     Voice.onSpeechStart = this.onSpeechStartHandler.bind(this);
     Voice.onSpeechResults = this.onSpeechResultsHandler.bind(this);
     Voice.onSpeechEnd = this.onSpeechEndHandler.bind(this);
     if (Platform.OS === 'ios') Tts.setIgnoreSilentSwitch(false);
   }
 
-  listener: any;
+  finishListener: any;
+  cancelListener: any;
 
   state: State = {
     fontSize: 25,
@@ -89,7 +92,7 @@ class AiScreen extends Component<Props, State> {
   }
 
   componentWillUnmount() {
-    Tts.removeEventListener('tts-finish', this.listener);
+    Tts.removeEventListener('tts-finish', this.finishListener);
     Tts.stop();
     Voice.destroy().then(Voice.removeAllListeners);
     console.log('unmount');
@@ -164,6 +167,10 @@ class AiScreen extends Component<Props, State> {
         }
       }
     }
+  }
+
+  ttsCanceled() {
+    console.log('tts-canceled');
   }
 
   processNLU(answerSentence: string, candidateList: string[]) {
