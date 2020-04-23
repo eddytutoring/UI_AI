@@ -55,7 +55,7 @@ class AiScreen extends Component<Props, State> {
     Voice.onSpeechStart = this.onSpeechStartHandler.bind(this);
     Voice.onSpeechResults = this._debounce(
       this.onSpeechResultsHandler.bind(this),
-      1000,
+      500,
     );
     Voice.onSpeechEnd = this.onSpeechEndHandler.bind(this);
     if (Platform.OS === 'ios') Tts.setIgnoreSilentSwitch(false);
@@ -152,14 +152,16 @@ class AiScreen extends Component<Props, State> {
                 this.ttsSpeaking(this.props.obj[this.state.index].tts); //tts
               } else {
                 //2번째 페이지가 아니면서 stt가 있는경우
-                this.setState(
-                  {
-                    stt: true,
-                  },
-                  () => {
-                    Voice.start('en-US'); //stt
-                  },
-                );
+                setTimeout(() => {
+                  this.setState(
+                    {
+                      stt: true,
+                    },
+                    () => {
+                      Voice.start('en-US'); //stt
+                    },
+                  );
+                }, 1000);
               }
             });
           }, 1000);
@@ -211,6 +213,7 @@ class AiScreen extends Component<Props, State> {
       console.log('passed');
       this.setState({
         isSttFinished: 'finished',
+        stt: false,
       });
       if (this.state.index === 1) {
         //첫째장 인경우
@@ -228,13 +231,10 @@ class AiScreen extends Component<Props, State> {
       } else {
         //첫째장이 아닌 경우
         console.log('need to change');
-
-        setTimeout(() => {
-          this.setState({
-            isSttFinished: 'finished',
-          });
-          this.ttsSpeaking(this.props.obj[this.state.index].tts);
-        }, 2000);
+        this.setState({
+          isSttFinished: 'finished',
+        });
+        this.ttsSpeaking(this.props.obj[this.state.index].tts);
       }
       return e.value;
     } else {
