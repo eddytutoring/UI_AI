@@ -29,10 +29,10 @@ declare module 'react-native-tts' {
   function setIgnoreSilentSwitch(option: boolean): any;
 }
 
-declare module 'react-native-voice' {
+declare module '@react-native-community/voice' {
   function start(langType: string): void;
   function onSpeechStart(event: any): void;
-  function onSpeechResults(event: any): void;
+  function onSpeechResults(event: any): any;
   function onSpeechEnd(event: Object): void;
   function destroy(): any;
   function removeAllListeners(): void;

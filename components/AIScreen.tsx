@@ -53,7 +53,10 @@ class AiScreen extends Component<Props, State> {
     Tts.addEventListener('tts-finish', this.finishListener);
     Tts.addEventListener('tts-cancel', this.cancelListener);
     Voice.onSpeechStart = this.onSpeechStartHandler.bind(this);
-    Voice.onSpeechResults = this.onSpeechResultsHandler.bind(this);
+    Voice.onSpeechResults = this._debounce(
+      this.onSpeechResultsHandler.bind(this),
+      1000,
+    );
     Voice.onSpeechEnd = this.onSpeechEndHandler.bind(this);
     if (Platform.OS === 'ios') Tts.setIgnoreSilentSwitch(false);
   }
@@ -191,11 +194,11 @@ class AiScreen extends Component<Props, State> {
     console.log('voice start');
   }
 
-  onSpeechResultsHandler(result: Object | any) {
-    console.log(result.value);
+  onSpeechResultsHandler(e: Object | any) {
+    console.log(e.value);
     const accuracy = this.processNLU(
       this.props.obj[this.state.index].stt,
-      result.value,
+      e.value,
     );
 
     const {
@@ -206,32 +209,34 @@ class AiScreen extends Component<Props, State> {
       //통과한 경우
       Voice.destroy().then(Voice.removeAllListeners); //voice 자원 해제
       console.log('passed');
+      this.setState({
+        isSttFinished: 'finished',
+      });
       if (this.state.index === 1) {
         //첫째장 인경우
         setTimeout(() => {
           this.setState(
             {
+              isSttFinished: 'finished',
               index: this.state.index + 1, //2초 후 인덱스 증가
             },
             () => {
               this.ttsSpeaking(this.props.obj[this.state.index].tts); //인덱스 증가 후 tts
             },
           );
-        }, 1000);
+        }, 2000);
       } else {
         //첫째장이 아닌 경우
         console.log('need to change');
-        this.setState(
-          {
+
+        setTimeout(() => {
+          this.setState({
             isSttFinished: 'finished',
-          },
-          () => {
-            setTimeout(() => {
-              this.ttsSpeaking(this.props.obj[this.state.index].tts);
-            }, 1000);
-          },
-        );
+          });
+          this.ttsSpeaking(this.props.obj[this.state.index].tts);
+        }, 2000);
       }
+      return e.value;
     } else {
       //말했는데 실패한 경우
       Voice.stop();
@@ -241,6 +246,17 @@ class AiScreen extends Component<Props, State> {
 
   onSpeechEndHandler = (event: Object) => {
     console.log('voice end');
+  };
+
+  _debounce = (fn: any, delay: number) => {
+    let timer: any = null;
+    return function (...args: any) {
+      const context = this;
+      timer && clearTimeout(timer);
+      timer = setTimeout(() => {
+        fn.apply(context, args);
+      }, delay);
+    };
   };
 
   render() {
@@ -314,7 +330,9 @@ class AiScreen extends Component<Props, State> {
                 fontSize={this.state.fontSize}
                 fontWeight={this.state.fontWeight}
                 duration={this.state.duration}
-                isSttFinished={this.state.isSttFinished}
+                isSttFinished={
+                  this.state.index !== 1 ? this.state.isSttFinished : 'finished'
+                }
               />
             </View>
           )}

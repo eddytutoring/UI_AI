@@ -32,7 +32,22 @@
   },
   {
     "ScriptLabel": "I see.",
-    "tts": "I see"
+    "tts": "I see."
+  },
+  {
+    "ScriptLabel": "What are you eating?",
+    "InstructionLabelKor": "당신은 무엇을 먹고 있나요?",
+    "tts": "What are you eating?"
+  },
+  {
+    "InstructionLabelKor": "/I am eating/을 이용해 /아이스크림을 먹고 있습니다./라고 말해볼까요?",
+    "stt": "I am eating an ice cream",
+    "tts": "I am eating an ice cream",
+    "InstructionLabelEng": "I am eating an ice cream"
+  },
+  {
+    "tts": "Sounds nice.",
+    "ScriptLabel": "Sounds nice."
   },
   {
     "ScriptLabel": "You did a great job! You've done your review task perfectly. Keep up your work on the next topic cards.",
