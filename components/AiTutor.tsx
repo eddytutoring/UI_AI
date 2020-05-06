@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {View, StyleSheet} from 'react-native';
-import Description from './description/Description2';
+import Description from './description/Description';
 import Voca from './voca/Voca';
 import Quiz from './quiz/Quiz';
 
