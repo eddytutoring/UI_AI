@@ -9,25 +9,22 @@ import {
   Platform,
 } from 'react-native';
 import AiScreen from './components/AiScreen';
-import AiTutor from './components/AiTutor';
 
-// const JSONString = require('./components/list.json');
-// const jsonArray = JSONString.map((_: any, k: number) => {
-//   return JSONString[k];
-// });
+const JSONString = require('./components/list.json');
+const jsonArray = JSONString.map((_: any, k: number) => {
+  return JSONString[k];
+});
 
 interface Props {}
 interface State {
   clicked: boolean;
   permission: boolean;
-  page: number;
 }
 
 class App extends Component<Props, State> {
   state: State = {
     clicked: false,
     permission: true,
-    page: 0,
   };
 
   async requestPermission() {
@@ -75,12 +72,7 @@ class App extends Component<Props, State> {
     return (
       <SafeAreaView style={styles.view}>
         {this.state.permission && this.state.clicked ? (
-          // <AiScreen obj={jsonArray} onPressHandler={this.openAi.bind(this)} />
-          <AiTutor
-            onPressHandler={this.openAi.bind(this)}
-            page={3}
-            fileName={'review'}
-          />
+          <AiScreen obj={jsonArray} onPressHandler={this.openAi.bind(this)} />
         ) : (
           <TouchableWithoutFeedback
             onPress={() => {
