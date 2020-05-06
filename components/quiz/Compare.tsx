@@ -13,6 +13,7 @@ interface Props {
 }
 interface State {
   passed: boolean;
+  count: number;
 }
 
 class Compare extends Component<Props, State> {
@@ -31,13 +32,13 @@ class Compare extends Component<Props, State> {
 
   state: State = {
     passed: false,
+    count: 0,
   };
 
   finishListener: any;
   cancelListener: any;
 
   componentDidMount() {
-    console.log('compare');
     this.ttsSpeaking('Speak it up again.');
   }
 
@@ -46,6 +47,7 @@ class Compare extends Component<Props, State> {
     Tts.stop();
     Voice.destroy().then(Voice.removeAllListeners);
   }
+
   ttsSpeaking(str: string) {
     Tts.speak(
       str,
@@ -66,8 +68,10 @@ class Compare extends Component<Props, State> {
 
   ttsCallback() {
     Tts.stop();
-    if (!this.state.passed) {
-      Voice.start('en-US');
+    if (!this.state.passed && this.state.count < 3) {
+      setTimeout(() => {
+        Voice.start('en-US');
+      }, 1000);
     }
   }
 
@@ -92,17 +96,24 @@ class Compare extends Component<Props, State> {
       bestMatch: {target, rating},
     } = this.processNLU(this.props.answer, e.value);
 
-    if (rating >= 0.7) {
+    if (rating >= 0.7 || this.state.count == 3) {
       //통과한 경우
       Voice.destroy().then(Voice.removeAllListeners); //voice 자원 해제
-      console.log('passed');
       this.setState({
         passed: true,
       });
     } else {
       //말했는데 실패한 경우
-      Voice.stop();
-      // Voice.start('en-US'); //다시 듣기
+      Voice.destroy().then(Voice.removeAllListeners); //voice 자원 해제
+      this.setState(
+        {
+          count: this.state.count + 1,
+        },
+        () => {
+          this.ttsSpeaking(this.props.answer);
+          console.log('current count: ' + this.state.count);
+        },
+      );
     }
   }
 
@@ -117,34 +128,44 @@ class Compare extends Component<Props, State> {
     };
   };
 
+  getTextStyle() {
+    if (this.state.count == 2) {
+      //hint
+      console.log('hint');
+      return {
+        fontStyle: 'italic',
+        borderBottomColor: '#aaa',
+        borderBottomWidth: 1,
+        color: '#aaa',
+      };
+    } else {
+      //display answer only
+      return {
+        color: 'transparent',
+      };
+    }
+  }
+
   render() {
     const styles = StyleSheet.create({
       view: {
-        flex: 1,
-        justifyContent: 'flex-start',
         flexDirection: 'row',
         flexWrap: 'wrap',
-        padding: 30,
-        marginRight: 10,
       },
       text: {
         fontSize: 20,
-        fontStyle: 'italic',
-        color: 'white',
-        borderBottomWidth: 1,
-        borderBottomColor: '#aaa',
+        margin: 4,
       },
     });
 
     const {answer} = this.props;
     return (
       <View style={styles.view}>
-        {answer.split(' ').map((word) => {
+        {answer.split(' ').map((word, i) => {
           return (
-            <>
-              <Text style={styles.text}>{word}</Text>
-              <Text style={{fontSize: 20}}> </Text>
-            </>
+            <Text key={`word-${i}`} style={this.getTextStyle()}>
+              {word + ' '}
+            </Text>
           );
         })}
       </View>

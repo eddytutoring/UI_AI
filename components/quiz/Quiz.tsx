@@ -89,13 +89,12 @@ class Quiz extends Component<Props, State> {
 
   ttsCallback() {
     Tts.stop();
-    console.log('tts-finished');
     if (!this.state.next) {
-      setTimeout(() => {
-        this.setState({
-          next: true,
-        });
-      }, 1000);
+      // setTimeout(() => {
+      // }, 1000);
+      this.setState({
+        next: true,
+      });
     }
   }
 
@@ -146,12 +145,13 @@ class Quiz extends Component<Props, State> {
       });
     } else {
       //말했는데 실패한 경우
-      console.log('fail');
-      Voice.stop();
-      this.setState({
-        compare: true,
-      });
-      console.log(this.state.compare);
+      Voice.destroy()
+        .then(Voice.removeAllListeners)
+        .then(() =>
+          this.setState({
+            compare: true,
+          }),
+        );
     }
   }
 
@@ -189,7 +189,6 @@ class Quiz extends Component<Props, State> {
         this.ttsSpeaking(this.state.answer);
         return <FadeToLeft data={this.state.answer} />;
       } else if (this.state.compare) {
-        console.log('com');
         return <Compare answer={this.state.answer} />;
       }
     }
@@ -202,11 +201,16 @@ class Quiz extends Component<Props, State> {
     } else {
       //q
       if (!this.state.next) {
-        return data.q_ko;
+        return this.removeBrackets(data.q_ko);
       } else {
-        return data.guide;
+        return this.removeBrackets(data.guide);
       }
     }
+  }
+
+  removeBrackets(str: string) {
+    str = str.split('{').join('');
+    return str.split('}').join('');
   }
 
   render() {
@@ -222,7 +226,13 @@ class Quiz extends Component<Props, State> {
     return (
       <View style={styles.view}>
         {this.getEn()}
-        <FadeToTop data={this.getKor()} />
+        <FadeToTop
+          data={this.getKor()}
+          color={'black'}
+          accentColor={'black'}
+          fontSize={20}
+          textAlign={'flex-start'}
+        />
         {/* mic */}
       </View>
     );

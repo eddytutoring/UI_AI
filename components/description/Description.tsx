@@ -3,6 +3,7 @@ import {Image, View, StyleSheet, Platform} from 'react-native';
 import chipImg from '../../resource/chip.png';
 import FadeIn from '../animations/FadeIn';
 import Tts from 'react-native-tts';
+import FadeToTop from '../animations/FadeToTop';
 
 interface Props {
   data: any;
@@ -23,7 +24,7 @@ class Description2 extends Component<Props, State> {
   cancelListener: any;
 
   componentDidMount() {
-    this.ttsSpeaking(this.props.data.d_ko);
+    this.ttsSpeaking(this.props.data.d_en);
   }
 
   componentWillUnmount() {
@@ -53,7 +54,7 @@ class Description2 extends Component<Props, State> {
     Tts.stop();
   }
 
-  getStyle() {
+  getEnStyle() {
     if (this.props.data.d_img) {
       //이미지가 있다
       return {color: 'white', fontSize: 15, textAlign: 'center'};
@@ -63,13 +64,42 @@ class Description2 extends Component<Props, State> {
     }
   }
 
+  removeBrackets(str: string) {
+    str = str.split('{').join('');
+    return str.split('}').join('');
+  }
+
+  replaceAll(str: string, search: string | any, replace: string | any) {
+    return str.split(search).join(replace);
+  }
+
+  getKoStyle() {
+    if (this.props.data.d_img) {
+      return {
+        color: 'white',
+        accentColor: 'white',
+        fontSize: 15,
+        textAlign: 'center',
+      };
+    } else {
+      return {
+        color: 'black',
+        accentColor: '#888',
+        fontSize: 20,
+        textAlign: 'flex-start',
+      };
+    }
+  }
+
   render() {
     const {data} = this.props;
+    data.d_ko = this.removeBrackets(data.d_ko);
+    data.d_en = this.removeBrackets(data.d_en);
 
     const styles = StyleSheet.create({
       view: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'space-around',
         padding: 30,
         alignItems: this.props.data.d_img ? 'center' : 'flex-start',
         backgroundColor: this.props.data.d_img ? '#be79df' : 'white',
@@ -83,8 +113,12 @@ class Description2 extends Component<Props, State> {
 
     return (
       <View style={styles.view}>
-        {data.d_img && <Image source={chipImg} style={styles.img} />}
-        <FadeIn data={data.d_ko} {...this.getStyle()} />
+        <View style={{alignItems: 'center'}}>
+          {data.d_img && <Image source={chipImg} style={styles.img} />}
+          <FadeIn data={data.d_en} {...this.getEnStyle()} />
+        </View>
+        <FadeToTop data={data.d_ko} {...this.getKoStyle()} />
+        {data.d_img && <View></View>}
         {/* mic */}
       </View>
     );

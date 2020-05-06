@@ -3,6 +3,17 @@ import {View, Text, Animated, StyleSheet} from 'react-native';
 
 interface Props {
   data: any;
+  color: string;
+  accentColor: string;
+  fontSize: number;
+  textAlign:
+    | 'center'
+    | 'flex-start'
+    | 'flex-end'
+    | 'space-between'
+    | 'space-around'
+    | 'space-evenly'
+    | undefined;
 }
 interface State {}
 
@@ -43,15 +54,15 @@ class FadeToTop extends Component<Props, State> {
         ],
       },
       text: {
-        fontSize: 20,
-        lineHeight: 20,
+        fontSize: this.props.fontSize,
+        lineHeight: this.props.fontSize,
         fontWeight: '300',
         paddingVertical: 4,
       },
       textWrapper: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'center',
+        justifyContent: this.props.textAlign,
       },
     });
 
@@ -64,7 +75,7 @@ class FadeToTop extends Component<Props, State> {
                 key={`word-${i}`}
                 style={{
                   ...styles.text,
-                  color: 'black',
+                  color: this.props.color,
                 }}>
                 {i % 2 === 1 && word !== '' ? '"' : ''}
               </Animated.Text>
@@ -74,7 +85,7 @@ class FadeToTop extends Component<Props, State> {
                     key={`letter=${a}`}
                     style={{
                       ...styles.text,
-                      color: i % 2 ? 'black' : '#888',
+                      color: i % 2 ? this.props.color : this.props.accentColor,
                     }}>
                     {letter}
                   </Animated.Text>
@@ -84,7 +95,7 @@ class FadeToTop extends Component<Props, State> {
                 key={`blank-${i}`}
                 style={{
                   ...styles.text,
-                  color: 'black',
+                  color: this.props.color,
                 }}>
                 {i % 2 === 1 && word !== '' ? '"' : ''}
               </Animated.Text>
