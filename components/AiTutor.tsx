@@ -21,7 +21,7 @@ class AiTutor extends Component<Props, State> {
 
   getJSON = () => {
     try {
-      return require('./data/review.json').data.items[this.props.page];
+      return require('./data/preview.json').data.items[this.props.page];
     } catch (err) {
       console.warn(err);
     }
@@ -34,7 +34,7 @@ class AiTutor extends Component<Props, State> {
       return <Description data={this.data} />;
     } else if (type === 'Q' || type === 'VQ') {
       //VQ+Q
-      return <Quiz data={this.data} type={type === 'Q' ? 'q' : 'v'} />;
+      return <Quiz data={this.data} />;
     } else if (type === 'V') {
       //V
       return <Voca data={this.data} />;

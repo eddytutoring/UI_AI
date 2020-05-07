@@ -78,7 +78,7 @@ class App extends Component<Props, State> {
           // <AiScreen obj={jsonArray} onPressHandler={this.openAi.bind(this)} />
           <AiTutor
             onPressHandler={this.openAi.bind(this)}
-            page={2}
+            page={21}
             fileName={'review'}
           />
         ) : (

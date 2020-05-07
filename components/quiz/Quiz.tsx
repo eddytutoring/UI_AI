@@ -13,7 +13,6 @@ const tokenizer = new Tokenizer();
 
 interface Props {
   data: any;
-  type: string;
 }
 interface State {
   next: boolean;
@@ -51,20 +50,35 @@ class Quiz extends Component<Props, State> {
   finishListener: any;
 
   componentDidMount() {
-    let answers = Object.keys(this.props.data).length;
-    let temp: Array<string> = [];
-    for (let i = 5; i < answers; i++) {
-      temp = temp.concat(getByIndex(this.props.data, i));
+    if (this.props.data.type === 'Q') {
+      // let answers = Object.keys(this.props.data).length;
+      let temp: Array<string> = [];
+      // for (let i = 5; i < answers; i++) {
+      temp = getByIndex(this.props.data, 5);
+      console.log('temp: ' + temp);
+      // }
+      this.setState({
+        answerSet: temp,
+      });
+    } else {
+      this.setState({
+        answer: this.props.data.v_en,
+      });
     }
-    this.setState({
-      answerSet: temp,
-    });
   }
 
   componentWillUnmount() {
     Tts.removeEventListener('tts-finish', this.finishListener);
     Tts.stop();
     Voice.destroy().then(Voice.removeAllListeners);
+  }
+
+  shouldComponentUpdate(nextProps: any, nextState: any) {
+    return (
+      this.state.next !== nextState.next ||
+      this.state.passed !== nextState.passed ||
+      this.state.compare !== nextState.compare
+    );
   }
 
   ttsSpeaking(str: string) {
@@ -87,7 +101,7 @@ class Quiz extends Component<Props, State> {
 
   ttsCallback() {
     Tts.stop();
-    if (!this.state.next) {
+    if (!this.state.next && this.props.data.type !== 'VQ') {
       this.setState({
         next: true,
       });
@@ -109,6 +123,7 @@ class Quiz extends Component<Props, State> {
   }
 
   onSpeechResultsHandler(e: Object | any) {
+    console.log('말한다~');
     console.log(e.value);
     console.log(this.state.answerSet);
     let rating = 0;
@@ -127,6 +142,9 @@ class Quiz extends Component<Props, State> {
       });
 
       rating = accuracy[indexOfMaxValue];
+    } else {
+      rating = this.processNLU(this.props.data.v_en.replace('~', ''), e.value)
+        .bestMatch.rating;
     }
 
     console.log('답: ' + this.state.answer);
@@ -163,11 +181,26 @@ class Quiz extends Component<Props, State> {
   };
 
   getEn() {
-    const {data, type} = this.props;
-    if (type === 'v') {
-      return <FadeToLeft data={data.v_en} />;
+    const {data} = this.props;
+    if (data.type === 'VQ') {
+      if (!this.state.passed && !this.state.compare) {
+        setTimeout(() => {
+          Voice.start('en-US');
+        }, 500);
+        return <FadeToLeft data={' '} />;
+      } else if (this.state.passed) {
+        this.ttsSpeaking(data.v_en.replace('~', ''));
+        return <FadeToLeft data={data.v_en} />;
+      } else if (this.state.compare) {
+        return (
+          <Compare
+            answer={data.v_en.replace('~', '')}
+            finish={this.finishCompare.bind(this)}
+          />
+        );
+      }
     } else {
-      // q;
+      // Q;
       if (!this.state.next && !this.state.passed) {
         this.ttsSpeaking(this.props.data.q_en.replace('/', ' '));
         return (
@@ -200,8 +233,8 @@ class Quiz extends Component<Props, State> {
   }
 
   getKor() {
-    const {data, type} = this.props;
-    if (type === 'v') {
+    const {data} = this.props;
+    if (data.type === 'VQ') {
       return data.v_ko;
     } else {
       //q
