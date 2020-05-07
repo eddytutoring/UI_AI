@@ -14,7 +14,6 @@ class FadeToLeft extends Component<Props, State> {
     super(props);
     animation = [];
     this.animationTiming(this.props.data);
-    console.log(props.data);
   }
 
   shouldComponentUpdate(nextProps: any, nextState: any) {

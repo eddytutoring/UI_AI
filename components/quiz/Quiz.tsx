@@ -33,7 +33,6 @@ class Quiz extends Component<Props, State> {
     this.finishListener = this.ttsCallback.bind(this);
     Tts.setDefaultLanguage('en-US');
     Tts.addEventListener('tts-finish', this.finishListener);
-    Tts.addEventListener('tts-cancel', this.cancelListener);
     Voice.onSpeechResults = this._debounce(
       this.onSpeechResultsHandler.bind(this),
       500,
@@ -50,7 +49,6 @@ class Quiz extends Component<Props, State> {
   };
 
   finishListener: any;
-  cancelListener: any;
 
   componentDidMount() {
     let answers = Object.keys(this.props.data).length;
@@ -90,8 +88,6 @@ class Quiz extends Component<Props, State> {
   ttsCallback() {
     Tts.stop();
     if (!this.state.next) {
-      // setTimeout(() => {
-      // }, 1000);
       this.setState({
         next: true,
       });
@@ -189,9 +185,18 @@ class Quiz extends Component<Props, State> {
         this.ttsSpeaking(this.state.answer);
         return <FadeToLeft data={this.state.answer} />;
       } else if (this.state.compare) {
-        return <Compare answer={this.state.answer} />;
+        return (
+          <Compare
+            answer={this.state.answer}
+            finish={this.finishCompare.bind(this)}
+          />
+        );
       }
     }
+  }
+
+  finishCompare() {
+    this.setState({passed: true, compare: false});
   }
 
   getKor() {
