@@ -8,13 +8,7 @@ import {
   PermissionsAndroid,
   Platform,
 } from 'react-native';
-import AiScreen from './components/AiScreen';
 import AiTutor from './components/AiTutor';
-
-// const JSONString = require('./components/list.json');
-// const jsonArray = JSONString.map((_: any, k: number) => {
-//   return JSONString[k];
-// });
 
 interface Props {}
 interface State {
@@ -75,7 +69,6 @@ class App extends Component<Props, State> {
     return (
       <SafeAreaView style={styles.view}>
         {this.state.permission && this.state.clicked ? (
-          // <AiScreen obj={jsonArray} onPressHandler={this.openAi.bind(this)} />
           <AiTutor
             onPressHandler={this.openAi.bind(this)}
             page={21}

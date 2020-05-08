@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, StyleSheet, Platform} from 'react-native';
+import {View, StyleSheet, Platform, Text} from 'react-native';
 import FadeToTop from '../animations/FadeToTop';
 import FadeToLeft from '../animations/FadeToLeft';
 import FadeIn from '../animations/FadeIn';
@@ -13,8 +13,12 @@ const tokenizer = new Tokenizer();
 
 interface Props {
   data: any;
+  reaction: string;
+  micStatus: any;
+  micColor: any;
 }
 interface State {
+  reaction: boolean;
   next: boolean;
   passed: boolean;
   answer: string;
@@ -40,6 +44,7 @@ class Quiz extends Component<Props, State> {
   }
 
   state: State = {
+    reaction: false,
     next: false,
     passed: false,
     answer: '',
@@ -50,35 +55,33 @@ class Quiz extends Component<Props, State> {
   finishListener: any;
 
   componentDidMount() {
+    this.props.micStatus('hide');
+    this.ttsSpeaking(this.props.reaction);
     if (this.props.data.type === 'Q') {
-      // let answers = Object.keys(this.props.data).length;
-      let temp: Array<string> = [];
-      // for (let i = 5; i < answers; i++) {
-      temp = getByIndex(this.props.data, 5);
-      console.log('temp: ' + temp);
-      // }
       this.setState({
-        answerSet: temp,
+        answerSet: getByIndex(this.props.data, 5),
       });
     } else {
       this.setState({
         answer: this.props.data.v_en,
+        next: true,
       });
     }
+  }
+
+  shouldComponentUpdate(nextProps: any, nextState: any) {
+    return (
+      this.state.reaction !== nextState.reaction ||
+      this.state.next !== nextState.next ||
+      this.state.passed !== nextState.passed ||
+      this.state.compare !== nextState.compare
+    );
   }
 
   componentWillUnmount() {
     Tts.removeEventListener('tts-finish', this.finishListener);
     Tts.stop();
     Voice.destroy().then(Voice.removeAllListeners);
-  }
-
-  shouldComponentUpdate(nextProps: any, nextState: any) {
-    return (
-      this.state.next !== nextState.next ||
-      this.state.passed !== nextState.passed ||
-      this.state.compare !== nextState.compare
-    );
   }
 
   ttsSpeaking(str: string) {
@@ -101,10 +104,21 @@ class Quiz extends Component<Props, State> {
 
   ttsCallback() {
     Tts.stop();
-    if (!this.state.next && this.props.data.type !== 'VQ') {
+    if (
+      this.state.reaction &&
+      !this.state.next &&
+      this.props.data.type !== 'VQ'
+    ) {
       this.setState({
         next: true,
       });
+    }
+    if (!this.state.reaction) {
+      setTimeout(() => {
+        this.setState({
+          reaction: true,
+        });
+      }, 2000);
     }
   }
 
@@ -123,9 +137,8 @@ class Quiz extends Component<Props, State> {
   }
 
   onSpeechResultsHandler(e: Object | any) {
-    console.log('말한다~');
-    console.log(e.value);
-    console.log(this.state.answerSet);
+    // console.log(e.value);
+    // console.log(this.state.answerSet);
     let rating = 0;
     if (this.state.answer == '') {
       let accuracy = this.state.answerSet.map((sentence) => {
@@ -146,26 +159,30 @@ class Quiz extends Component<Props, State> {
       rating = this.processNLU(this.props.data.v_en.replace('~', ''), e.value)
         .bestMatch.rating;
     }
-
-    console.log('답: ' + this.state.answer);
-
+    // console.log('답: ' + this.state.answer);
     if (rating >= 0.7) {
       //통과한 경우
-      Voice.destroy().then(Voice.removeAllListeners); //voice 자원 해제
-      console.log('passed');
+      Voice.destroy().then(Voice.removeAllListeners);
+      // console.log('passed');
       this.setState({
         passed: true,
         compare: false,
       });
+      this.props.micColor('colored');
+      this.props.micStatus('correct');
     } else {
       //말했는데 실패한 경우
-      Voice.destroy()
-        .then(Voice.removeAllListeners)
-        .then(() =>
-          this.setState({
-            compare: true,
-          }),
-        );
+      this.props.micColor('red');
+      this.props.micStatus('wrong');
+      setTimeout(() => {
+        Voice.destroy()
+          .then(Voice.removeAllListeners)
+          .then(() =>
+            this.setState({
+              compare: true,
+            }),
+          );
+      }, 1000);
     }
   }
 
@@ -180,68 +197,84 @@ class Quiz extends Component<Props, State> {
     };
   };
 
-  getEn() {
-    const {data} = this.props;
-    if (data.type === 'VQ') {
-      if (!this.state.passed && !this.state.compare) {
-        setTimeout(() => {
-          Voice.start('en-US');
-        }, 500);
-        return <FadeToLeft data={' '} />;
-      } else if (this.state.passed) {
-        this.ttsSpeaking(data.v_en.replace('~', ''));
-        return <FadeToLeft data={data.v_en} />;
-      } else if (this.state.compare) {
-        return (
-          <Compare
-            answer={data.v_en.replace('~', '')}
-            finish={this.finishCompare.bind(this)}
-          />
-        );
-      }
-    } else {
-      // Q;
-      if (!this.state.next && !this.state.passed) {
-        this.ttsSpeaking(this.props.data.q_en.replace('/', ' '));
-        return (
-          <FadeIn
-            data={data.q_en}
-            color={'black'}
-            textAlign={'left'}
-            fontSize={20}
-          />
-        );
-      } else if (this.state.next && !this.state.passed && !this.state.compare) {
-        Voice.start('en-US');
-        return <FadeToLeft data={' '} />;
-      } else if (this.state.next && this.state.passed) {
-        this.ttsSpeaking(this.state.answer);
-        return <FadeToLeft data={this.state.answer} />;
-      } else if (this.state.compare) {
-        return (
-          <Compare
-            answer={this.state.answer}
-            finish={this.finishCompare.bind(this)}
-          />
-        );
-      }
-    }
-  }
-
   finishCompare() {
     this.setState({passed: true, compare: false});
   }
 
+  getEn() {
+    const {data, reaction} = this.props;
+    if (!this.state.reaction) {
+      return (
+        <FadeToLeft data={data.type === 'Q' ? reaction : ' '} color={'#444'} />
+      );
+    } else {
+      this.props.micStatus('testing');
+      this.props.micColor('white');
+      if (!this.state.next) {
+        this.ttsSpeaking(this.props.data.q_en.replace('/', ' '));
+        return (
+          <FadeIn
+            data={data.q_en}
+            color={'#444'}
+            textAlign={'left'}
+            fontSize={20}
+          />
+        );
+      } //next true
+      else {
+        if (!this.state.passed) {
+          if (!this.state.compare) {
+            Voice.start('en-US');
+            return (
+              <FadeToLeft
+                data={data.type === 'VQ' ? data.v_en : this.state.answerSet[0]}
+                color={'transparent'}
+              />
+            );
+          } else {
+            return (
+              <Compare
+                answer={
+                  data.type === 'VQ'
+                    ? data.v_en.replace('~', '')
+                    : this.state.answer
+                }
+                finish={this.finishCompare.bind(this)}
+                micStatus={this.props.micStatus}
+                micColor={this.props.micColor}
+              />
+            );
+          }
+        } else {
+          this.props.micColor('colored');
+          this.props.micStatus('correct');
+          this.ttsSpeaking(
+            data.type === 'VQ' ? data.v_en.replace('~', '') : this.state.answer,
+          );
+          return (
+            <FadeToLeft
+              data={data.type === 'VQ' ? data.v_en : this.state.answer}
+              color={'#444'}
+            />
+          );
+        }
+      }
+    }
+  }
+
   getKor() {
     const {data} = this.props;
-    if (data.type === 'VQ') {
-      return data.v_ko;
+    if (!this.state.reaction) {
+      return ' ';
     } else {
-      //q
-      if (!this.state.next) {
-        return this.removeBrackets(data.q_ko);
+      if (data.type === 'VQ') {
+        return data.v_ko;
       } else {
-        return this.removeBrackets(data.guide);
+        if (!this.state.next) {
+          return this.removeBrackets(data.q_ko);
+        } else {
+          return this.removeBrackets(data.guide);
+        }
       }
     }
   }
@@ -266,12 +299,11 @@ class Quiz extends Component<Props, State> {
         {this.getEn()}
         <FadeToTop
           data={this.getKor()}
-          color={'black'}
-          accentColor={'black'}
+          color={'#444'}
+          accentColor={'#888'}
           fontSize={20}
           textAlign={'flex-start'}
         />
-        {/* mic */}
       </View>
     );
   }

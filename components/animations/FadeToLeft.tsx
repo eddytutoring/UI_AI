@@ -3,6 +3,7 @@ import {Animated, StyleSheet} from 'react-native';
 
 interface Props {
   data: any;
+  color: string;
 }
 interface State {}
 
@@ -18,12 +19,8 @@ class FadeToLeft extends Component<Props, State> {
 
   shouldComponentUpdate(nextProps: any, nextState: any) {
     this.animationTiming(nextProps.data);
-    return this.props.data !== nextProps.data;
+    return this.props.color !== nextProps.color;
   }
-
-  // componentWillUnmount() {
-  //   console.log('unmounted');
-  // }
 
   animationTiming(sentence: string) {
     words = sentence.split(' ');
@@ -54,10 +51,12 @@ class FadeToLeft extends Component<Props, State> {
     });
 
     let textStyle = (i: number) => ({
+      marginBottom: 4,
+      marginTop: 4,
       opacity: animation[i],
       color: animation[i].interpolate({
         inputRange: [0, 1],
-        outputRange: ['transparent', '#444'],
+        outputRange: ['transparent', this.props.color],
       }),
       transform: [
         {

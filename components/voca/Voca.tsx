@@ -11,6 +11,8 @@ const tokenizer = new Tokenizer();
 
 interface Props {
   data: any;
+  micStatus: any;
+  micColor: any;
 }
 interface State {
   passed: boolean;
@@ -39,6 +41,8 @@ class Voca extends Component<Props, State> {
 
   componentDidMount() {
     this.ttsSpeaking(this.props.data.v_en);
+    this.props.micStatus('testing');
+    this.props.micColor('colored');
   }
 
   componentWillUnmount() {
@@ -70,6 +74,8 @@ class Voca extends Component<Props, State> {
     Tts.stop();
     setTimeout(() => {
       Voice.start('en-US');
+      this.props.micColor('white');
+      this.props.micStatus('testing');
     }, 1000);
   }
 
@@ -102,11 +108,15 @@ class Voca extends Component<Props, State> {
       this.setState({
         passed: true,
       });
-      // return e.value;
+      this.props.micColor('colored');
+      this.props.micStatus('correct');
     } else {
       //말했는데 실패한 경우
       Voice.stop();
-      Voice.start('en-US'); //다시 듣기
+      this.ttsSpeaking('speak it up again.');
+      this.props.micColor('red');
+      this.props.micStatus('wrong');
+      // Voice.start('en-US'); //다시 듣기
     }
   }
 
@@ -135,8 +145,14 @@ class Voca extends Component<Props, State> {
 
     return (
       <View style={styles.view}>
-        <FadeToLeft data={data.v_en} />
-        <FadeToTop data={data.v_ko} />
+        <FadeToLeft data={data.v_en} color={'black'} />
+        <FadeToTop
+          data={data.v_ko}
+          color={'#444'}
+          accentColor={'#444'}
+          fontSize={20}
+          textAlign={'flex-start'}
+        />
         {/* mic */}
       </View>
     );

@@ -1,4 +1,4 @@
-import React, {Component, Fragment} from 'react';
+import React, {Component} from 'react';
 import {Platform, View, Text, StyleSheet} from 'react-native';
 import Tts from 'react-native-tts';
 import Voice from '@react-native-community/voice';
@@ -14,6 +14,8 @@ let words: Array<boolean> = [];
 interface Props {
   answer: string;
   finish: any;
+  micStatus: any;
+  micColor: any;
 }
 interface State {
   count: number;
@@ -47,6 +49,8 @@ class Compare extends Component<Props, State> {
   finishListener: any;
 
   componentDidMount() {
+    this.props.micColor('colored');
+    this.props.micStatus('testing');
     this.ttsSpeaking('Speak it up again.');
   }
 
@@ -61,6 +65,8 @@ class Compare extends Component<Props, State> {
   }
 
   ttsSpeaking(str: string) {
+    this.props.micColor('colored');
+    this.props.micStatus('testing');
     Tts.speak(
       str,
       Platform.OS === 'ios'
@@ -83,6 +89,8 @@ class Compare extends Component<Props, State> {
     if (this.state.count < 3) {
       setTimeout(() => {
         Voice.start('en-US');
+        this.props.micColor('white');
+        this.props.micStatus('testing');
       }, 1000);
     }
   }
@@ -112,26 +120,30 @@ class Compare extends Component<Props, State> {
 
     if (rating >= 0.7) {
       //통과한 경우
-      Voice.destroy().then(Voice.removeAllListeners); //voice 자원 해제
+      Voice.destroy().then(Voice.removeAllListeners);
       Tts.removeEventListener('tts-finish', this.finishListener);
       Tts.stop();
       this.props.finish();
     } else {
       //말했는데 실패한 경우
-      Voice.destroy().then(Voice.removeAllListeners); //voice 자원 해제
-      this.setState(
-        {
-          count: this.state.count + 1,
-        },
-        () => {
-          if (this.state.count < 3) this.ttsSpeaking(this.props.answer);
-          else {
-            Tts.removeEventListener('tts-finish', this.finishListener);
-            Tts.stop();
-            this.props.finish();
-          }
-        },
-      );
+      this.props.micColor('red');
+      this.props.micStatus('wrong');
+      Voice.destroy().then(Voice.removeAllListeners);
+      setTimeout(() => {
+        this.setState(
+          {
+            count: this.state.count + 1,
+          },
+          () => {
+            if (this.state.count < 3) this.ttsSpeaking(this.props.answer);
+            else {
+              Tts.removeEventListener('tts-finish', this.finishListener);
+              Tts.stop();
+              this.props.finish();
+            }
+          },
+        );
+      }, 1000);
     }
   }
 
