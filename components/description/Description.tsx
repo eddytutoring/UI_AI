@@ -54,16 +54,6 @@ class Description2 extends Component<Props, State> {
     Tts.stop();
   }
 
-  getEnStyle() {
-    if (this.props.data.d_img) {
-      //이미지가 있다
-      return {color: 'white', fontSize: 15, textAlign: 'center'};
-    } else {
-      //이미지가 없다
-      return {color: 'black', fontSize: 20, textAlign: 'left'};
-    }
-  }
-
   removeBrackets(str: string) {
     str = str.split('{').join('');
     return str.split('}').join('');
@@ -73,12 +63,22 @@ class Description2 extends Component<Props, State> {
     return str.split(search).join(replace);
   }
 
+  getEnStyle() {
+    if (this.props.data.d_img) {
+      //이미지가 있다
+      return {color: 'white', fontSize: 12, textAlign: 'center'};
+    } else {
+      //이미지가 없다
+      return {color: 'black', fontSize: 20, textAlign: 'left'};
+    }
+  }
+
   getKoStyle() {
     if (this.props.data.d_img) {
       return {
         color: 'white',
         accentColor: 'white',
-        fontSize: 15,
+        fontSize: 16,
         textAlign: 'center',
       };
     } else {
@@ -105,22 +105,30 @@ class Description2 extends Component<Props, State> {
         backgroundColor: this.props.data.d_img ? '#be79df' : 'white',
       },
       img: {
-        width: 100,
-        height: 100,
+        width: 80,
+        height: 80,
         marginBottom: 20,
       },
     });
 
     return (
-      <View style={styles.view}>
-        <View style={{alignItems: 'center'}}>
-          {data.d_img && <Image source={chipImg} style={styles.img} />}
-          <FadeIn data={data.d_en} {...this.getEnStyle()} />
+      <>
+        <View style={styles.view}>
+          <View
+            style={{
+              alignItems: 'center',
+              flex: 1,
+              justifyContent: 'center',
+              width: '85%',
+            }}>
+            {data.d_img && <Image source={chipImg} style={styles.img} />}
+            <FadeIn data={data.d_en} {...this.getEnStyle()} />
+          </View>
+          <View style={{flex: 1, justifyContent: 'flex-start'}}>
+            <FadeToTop data={data.d_ko} {...this.getKoStyle()} />
+          </View>
         </View>
-        <FadeToTop data={data.d_ko} {...this.getKoStyle()} />
-        {data.d_img && <View></View>}
-        {/* mic */}
-      </View>
+      </>
     );
   }
 }

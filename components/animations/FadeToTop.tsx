@@ -36,12 +36,19 @@ class FadeToTop extends Component<Props, State> {
     words = sentence.split('"');
     Animated.timing(animation, {
       toValue,
-      duration: 700,
+      duration: 1000,
       useNativeDriver: false,
     }).start();
   }
 
   render() {
+    const opacityStyle = {
+      opacity: animation.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, 1],
+      }),
+    };
+
     const styles = StyleSheet.create({
       view: {
         transform: [
@@ -57,7 +64,7 @@ class FadeToTop extends Component<Props, State> {
         fontSize: this.props.fontSize,
         lineHeight: this.props.fontSize,
         fontWeight: '300',
-        paddingVertical: 4,
+        paddingVertical: 2,
       },
       textWrapper: {
         flexDirection: 'row',
@@ -67,7 +74,7 @@ class FadeToTop extends Component<Props, State> {
     });
 
     return (
-      <Animated.View style={[styles.view, styles.textWrapper]}>
+      <Animated.View style={[styles.view, styles.textWrapper, opacityStyle]}>
         {words.map((word, i) => {
           return (
             <Fragment key={`view-${i}`}>

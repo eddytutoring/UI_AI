@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, StyleSheet, Image} from 'react-native';
+import {View, StyleSheet, Image, Text} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import RadialGradient from 'react-native-radial-gradient';
 
@@ -28,6 +28,12 @@ class MIC extends Component<Props, State> {
         width: this.state.diameter,
         borderRadius: 100,
       },
+      text: {
+        color: '#888',
+        fontWeight: 'bold',
+        fontSize: 13,
+        letterSpacing: 0.7,
+      },
     });
 
     return (
@@ -38,11 +44,11 @@ class MIC extends Component<Props, State> {
           <RadialGradient
             colors={['#1a0fff', '#fafafa']}
             stops={[0, 0.4]}
-            center={[60, 55]}
+            center={[50, 55]}
             radius={100}
             style={{
-              height: 120,
-              width: 120,
+              height: 100,
+              width: 100,
               justifyContent: 'flex-start',
               alignItems: 'center',
             }}>
@@ -79,6 +85,13 @@ class MIC extends Component<Props, State> {
             </LinearGradient>
           </RadialGradient>
         )}
+        <Text style={styles.text}>
+          {this.props.status === 'correct'
+            ? '잘했어요!'
+            : this.props.status === 'wrong'
+            ? '다시 말해보세요.'
+            : ' '}
+        </Text>
       </View>
     );
   }

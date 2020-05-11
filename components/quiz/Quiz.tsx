@@ -168,8 +168,6 @@ class Quiz extends Component<Props, State> {
         passed: true,
         compare: false,
       });
-      this.props.micColor('colored');
-      this.props.micStatus('correct');
     } else {
       //말했는데 실패한 경우
       this.props.micColor('red');
@@ -208,9 +206,9 @@ class Quiz extends Component<Props, State> {
         <FadeToLeft data={data.type === 'Q' ? reaction : ' '} color={'#444'} />
       );
     } else {
-      this.props.micStatus('testing');
-      this.props.micColor('white');
       if (!this.state.next) {
+        this.props.micStatus('testing');
+        this.props.micColor('colored');
         this.ttsSpeaking(this.props.data.q_en.replace('/', ' '));
         return (
           <FadeIn
@@ -224,12 +222,22 @@ class Quiz extends Component<Props, State> {
       else {
         if (!this.state.passed) {
           if (!this.state.compare) {
+            this.props.micStatus('testing');
+            this.props.micColor('white');
             Voice.start('en-US');
             return (
-              <FadeToLeft
-                data={data.type === 'VQ' ? data.v_en : this.state.answerSet[0]}
-                color={'transparent'}
-              />
+              // <FadeToLeft
+              //   data={data.type === 'VQ' ? data.v_en : this.state.answerSet[0]}
+              //   color={'transparent'}
+              // />
+
+              <Text
+                style={{
+                  opacity: 0,
+                  height: '30%',
+                }}>
+                {data.type === 'VQ' ? data.v_en : this.state.answerSet[0]}
+              </Text>
             );
           } else {
             return (
@@ -246,6 +254,7 @@ class Quiz extends Component<Props, State> {
             );
           }
         } else {
+          //passed
           this.props.micColor('colored');
           this.props.micStatus('correct');
           this.ttsSpeaking(

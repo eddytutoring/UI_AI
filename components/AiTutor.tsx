@@ -6,9 +6,10 @@ import Quiz from './quiz/Quiz';
 import MIC from './mic/MIC';
 
 interface Props {
+  reaction: string;
   onPressHandler: any;
-  page: number;
   fileName: string;
+  data: any;
 }
 
 interface State {
@@ -20,29 +21,20 @@ interface State {
 class AiTutor extends Component<Props, State> {
   state: State = {
     index: 0,
-    status: 'wrong',
-    color: 'red',
+    status: 'hide',
+    color: 'colored',
   };
-
-  getJSON = () => {
-    try {
-      return require('./data/preview.json').data.items[this.props.page];
-    } catch (err) {
-      console.warn(err);
-    }
-  };
-
-  data = this.getJSON();
 
   getContents(type: string) {
+    const {data} = this.props;
     if (type === 'D') {
-      return <Description data={this.data} />;
+      return <Description data={data} />;
     } else if (type === 'Q' || type === 'VQ') {
       //VQ+Q
       return (
         <Quiz
-          data={this.data}
-          reaction={'one'}
+          data={data}
+          reaction={this.props.reaction}
           micStatus={this.micStatus.bind(this)}
           micColor={this.micColor.bind(this)}
         />
@@ -51,7 +43,7 @@ class AiTutor extends Component<Props, State> {
       //V
       return (
         <Voca
-          data={this.data}
+          data={data}
           micStatus={this.micStatus.bind(this)}
           micColor={this.micColor.bind(this)}
         />
@@ -74,13 +66,15 @@ class AiTutor extends Component<Props, State> {
   }
 
   render() {
-    const type = this.data.type;
+    const type = this.props.data.type;
     return (
       <>
         <View style={styles.view}>{this.getContents(type)}</View>
-        <View style={{flex: 1, justifyContent: 'center'}}>
-          <MIC status={this.state.status} color={this.state.color} />
-        </View>
+        {type !== 'D' && (
+          <View style={{flex: 1, justifyContent: 'center'}}>
+            <MIC status={this.state.status} color={this.state.color} />
+          </View>
+        )}
       </>
     );
   }

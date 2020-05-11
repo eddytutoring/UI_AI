@@ -24,28 +24,32 @@ class FadeIn extends Component<Props, State> {
   animationTiming() {
     Animated.timing(animation, {
       toValue: 1,
-      duration: 700,
+      duration: 1000,
       useNativeDriver: false,
     }).start();
   }
 
   render() {
-    let colorStyle = animation.interpolate({
-      inputRange: [0, 1],
-      outputRange: ['transparent', this.props.color],
-    });
+    let opacityStyle = {
+      opacity: animation.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, 1],
+      }),
+    };
 
     const styles = StyleSheet.create({
       text: {
         fontSize: this.props.fontSize,
         fontWeight: '300',
         textAlign: this.props.textAlign,
+        color: this.props.color,
+        lineHeight: this.props.fontSize + 8,
       },
     });
 
     return (
-      <Animated.View>
-        <Animated.Text style={{...styles.text, color: colorStyle}}>
+      <Animated.View style={opacityStyle}>
+        <Animated.Text style={{...styles.text}}>
           {this.props.data}
         </Animated.Text>
       </Animated.View>

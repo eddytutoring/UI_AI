@@ -9,19 +9,69 @@ import {
   Platform,
 } from 'react-native';
 import AiTutor from './components/AiTutor';
+import value from '*.json';
 
 interface Props {}
 interface State {
   clicked: boolean;
   permission: boolean;
   page: number;
+  goNext: boolean;
 }
 
+getJSON = () => {
+  try {
+    return require('./components/data/review.json').data.items;
+  } catch (err) {
+    console.warn(err);
+  }
+};
+
+data = getJSON();
+
 class App extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    // this.mission = this.mission.bind(this);
+    // this.mission(this.page);
+    console.log(data);
+    this.page = this.page();
+    console.log(this.page.next());
+    console.log(this.page.next());
+  }
+
   state: State = {
     clicked: false,
     permission: true,
     page: 0,
+    goNext: false,
+  };
+
+  *page() {
+    yield* data;
+  }
+
+  mission(fn) {
+    const it = fn();
+    // (function iterate({value, done}) {
+    //   console.log({value, done});
+    //   if (done) {
+    //     return value;
+    //   }
+
+    //   // if () { 실행이 끝나면
+    //   // this.setState({
+    //   //   page: value.no - 1,
+    //   // });
+    //   console.log(value.no - 1), iterate(it.next(value));
+    //   // }
+    // })(it.next());
+    let next;
+    console.log(this.state.page);
+  }
+
+  reaction = () => {
+    //TODO:MAKE LATER
   };
 
   async requestPermission() {
@@ -71,8 +121,9 @@ class App extends Component<Props, State> {
         {this.state.permission && this.state.clicked ? (
           <AiTutor
             onPressHandler={this.openAi.bind(this)}
-            page={21}
             fileName={'review'}
+            reaction={'one'} //TODO:CHANGE LATER
+            data={data[0]} //TODO:
           />
         ) : (
           <TouchableWithoutFeedback

@@ -34,7 +34,7 @@ class Compare extends Component<Props, State> {
       500,
     );
     if (Platform.OS === 'ios') Tts.setIgnoreSilentSwitch(false);
-    this.props.answer.split(' ').map((_) => (words = words.concat([false])));
+    this.props.answer.split(' ').map((_) => (words = words.concat(false)));
     this.setState({
       words: words,
     });
@@ -205,6 +205,7 @@ class Compare extends Component<Props, State> {
       view: {
         flexDirection: 'row',
         flexWrap: 'wrap',
+        height: '30%',
       },
       text: {
         fontSize: 20,

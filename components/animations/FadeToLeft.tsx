@@ -30,11 +30,11 @@ class FadeToLeft extends Component<Props, State> {
     const animations = words.map((_, i) => {
       return Animated.timing(animation[i], {
         toValue: 1,
-        duration: 700,
+        duration: 1000,
         useNativeDriver: false,
       });
     });
-    Animated.stagger(700 / 1.5, animations).start();
+    Animated.stagger(1000 / 1.5, animations).start();
   }
 
   render() {
@@ -46,18 +46,23 @@ class FadeToLeft extends Component<Props, State> {
       textWrapper: {
         flexDirection: 'row',
         flexWrap: 'wrap',
+        height: '30%',
         justifyContent: 'flex-start',
       },
+    });
+
+    let opacityStyle = (i: number) => ({
+      opacity: animation[i].interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, 1],
+      }),
     });
 
     let textStyle = (i: number) => ({
       marginBottom: 4,
       marginTop: 4,
       opacity: animation[i],
-      color: animation[i].interpolate({
-        inputRange: [0, 1],
-        outputRange: ['transparent', this.props.color],
-      }),
+      color: this.props.color,
       transform: [
         {
           translateX: animation[i].interpolate({
@@ -74,7 +79,7 @@ class FadeToLeft extends Component<Props, State> {
           return (
             <Animated.Text
               key={`word-${i}`}
-              style={[styles.text, textStyle(i)]}>
+              style={[styles.text, textStyle(i), opacityStyle(i)]}>
               {word}
               {i < words.length ? ' ' : ''}
             </Animated.Text>
