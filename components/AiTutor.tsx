@@ -10,6 +10,7 @@ interface Props {
   onPressHandler: any;
   fileName: string;
   data: any;
+  goNextPage: any;
 }
 
 interface State {
@@ -28,7 +29,12 @@ class AiTutor extends Component<Props, State> {
   getContents(type: string) {
     const {data} = this.props;
     if (type === 'D') {
-      return <Description data={data} />;
+      return (
+        <Description
+          data={data}
+          goNextPage={this.props.goNextPage.bind(this)}
+        />
+      );
     } else if (type === 'Q' || type === 'VQ') {
       //VQ+Q
       return (
@@ -37,6 +43,7 @@ class AiTutor extends Component<Props, State> {
           reaction={this.props.reaction}
           micStatus={this.micStatus.bind(this)}
           micColor={this.micColor.bind(this)}
+          goNextPage={this.props.goNextPage.bind(this)}
         />
       );
     } else if (type === 'V') {
@@ -46,6 +53,7 @@ class AiTutor extends Component<Props, State> {
           data={data}
           micStatus={this.micStatus.bind(this)}
           micColor={this.micColor.bind(this)}
+          goNextPage={this.props.goNextPage.bind(this)}
         />
       );
     } else {

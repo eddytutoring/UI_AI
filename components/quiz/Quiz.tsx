@@ -16,6 +16,7 @@ interface Props {
   reaction: string;
   micStatus: any;
   micColor: any;
+  goNextPage: any;
 }
 interface State {
   reaction: boolean;
@@ -24,6 +25,7 @@ interface State {
   answer: string;
   answerSet: Array<string>;
   compare: boolean;
+  nextPage: boolean;
 }
 
 function getByIndex(obj: any, index: number) {
@@ -50,6 +52,7 @@ class Quiz extends Component<Props, State> {
     answer: '',
     answerSet: [],
     compare: false,
+    nextPage: false,
   };
 
   finishListener: any;
@@ -74,7 +77,8 @@ class Quiz extends Component<Props, State> {
       this.state.reaction !== nextState.reaction ||
       this.state.next !== nextState.next ||
       this.state.passed !== nextState.passed ||
-      this.state.compare !== nextState.compare
+      this.state.compare !== nextState.compare ||
+      this.props.data !== nextProps.data
     );
   }
 
@@ -113,11 +117,21 @@ class Quiz extends Component<Props, State> {
         next: true,
       });
     }
+
     if (!this.state.reaction) {
       setTimeout(() => {
         this.setState({
           reaction: true,
         });
+      }, 2000);
+    }
+
+    if (this.state.passed) {
+      setTimeout(() => {
+        this.props.goNextPage(true);
+        // this.setState({
+        //   nextPage: true,
+        // });
       }, 2000);
     }
   }

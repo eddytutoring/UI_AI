@@ -13,6 +13,7 @@ interface Props {
   data: any;
   micStatus: any;
   micColor: any;
+  goNextPage: any;
 }
 interface State {
   passed: boolean;
@@ -40,7 +41,7 @@ class Voca extends Component<Props, State> {
   cancelListener: any;
 
   componentDidMount() {
-    this.ttsSpeaking(this.props.data.v_en);
+    this.ttsSpeaking(this.props.data.v_en.replace('~', ''));
     this.props.micStatus('testing');
     this.props.micColor('colored');
   }
@@ -110,6 +111,9 @@ class Voca extends Component<Props, State> {
       });
       this.props.micColor('colored');
       this.props.micStatus('correct');
+      setTimeout(() => {
+        this.props.goNextPage(true);
+      }, 2000);
     } else {
       //말했는데 실패한 경우
       Voice.stop();

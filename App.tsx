@@ -21,7 +21,7 @@ interface State {
 
 getJSON = () => {
   try {
-    return require('./components/data/review.json').data.items;
+    return require('./components/data/preview.json').data.items;
   } catch (err) {
     console.warn(err);
   }
@@ -32,12 +32,8 @@ data = getJSON();
 class App extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    // this.mission = this.mission.bind(this);
-    // this.mission(this.page);
     console.log(data);
     this.page = this.page();
-    console.log(this.page.next());
-    console.log(this.page.next());
   }
 
   state: State = {
@@ -47,12 +43,24 @@ class App extends Component<Props, State> {
     goNext: false,
   };
 
+  componentDidUpdate() {
+    this.mission();
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return (
+      this.state.goNext !== nextState.goNext ||
+      this.state.clicked !== nextState.clicked ||
+      this.state.permission !== nextState.permission
+    );
+  }
+
   *page() {
     yield* data;
   }
 
-  mission(fn) {
-    const it = fn();
+  mission() {
+    // const it = fn();
     // (function iterate({value, done}) {
     //   console.log({value, done});
     //   if (done) {
@@ -66,13 +74,26 @@ class App extends Component<Props, State> {
     //   console.log(value.no - 1), iterate(it.next(value));
     //   // }
     // })(it.next());
-    let next;
-    console.log(this.state.page);
+    // let next;
+    if (this.state.goNext) {
+      let next = this.page.next();
+      this.setState({
+        page: next.value.no,
+        goNext: false,
+      });
+      console.log('next: ' + next.value.no);
+    }
   }
 
   reaction = () => {
     //TODO:MAKE LATER
   };
+
+  goNextPage(status: boolean) {
+    this.setState({
+      goNext: status,
+    });
+  }
 
   async requestPermission() {
     console.log('request start');
@@ -119,12 +140,15 @@ class App extends Component<Props, State> {
     return (
       <SafeAreaView style={styles.view}>
         {this.state.permission && this.state.clicked ? (
-          <AiTutor
-            onPressHandler={this.openAi.bind(this)}
-            fileName={'review'}
-            reaction={'one'} //TODO:CHANGE LATER
-            data={data[0]} //TODO:
-          />
+          this.state.goNext ? null : (
+            <AiTutor
+              onPressHandler={this.openAi.bind(this)}
+              fileName={'review'}
+              reaction={'one'} //TODO:CHANGE LATER
+              data={data[this.state.page]} //TODO:
+              goNextPage={this.goNextPage.bind(this)}
+            />
+          )
         ) : (
           <TouchableWithoutFeedback
             onPress={() => {

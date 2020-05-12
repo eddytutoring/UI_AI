@@ -7,17 +7,19 @@ import FadeToTop from '../animations/FadeToTop';
 
 interface Props {
   data: any;
+  goNextPage: any;
 }
 
 interface State {}
 
-class Description2 extends Component<Props, State> {
+class Description extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.finishListener = this.ttsCallback.bind(this);
     Tts.setDefaultLanguage('en-US');
     Tts.addEventListener('tts-finish', this.finishListener);
     Tts.addEventListener('tts-cancel', this.cancelListener);
+    console.log('mount');
   }
 
   finishListener: any;
@@ -27,8 +29,18 @@ class Description2 extends Component<Props, State> {
     this.ttsSpeaking(this.props.data.d_en);
   }
 
+  shouldComponentUpdate(nextProps: any, nextState: any) {
+    return this.props.data !== nextProps.data;
+  }
+
+  // componentDidUpdate() {
+  //   console.log('update');
+  //   this.ttsSpeaking(this.props.data.d_en);
+  // }
+
   componentWillUnmount() {
     Tts.removeEventListener('tts-finish', this.finishListener);
+    console.log('unmount');
     Tts.stop();
   }
 
@@ -52,6 +64,9 @@ class Description2 extends Component<Props, State> {
 
   ttsCallback() {
     Tts.stop();
+    setTimeout(() => {
+      this.props.goNextPage(true);
+    }, 2000);
   }
 
   removeBrackets(str: string) {
@@ -133,4 +148,4 @@ class Description2 extends Component<Props, State> {
   }
 }
 
-export default Description2;
+export default Description;
