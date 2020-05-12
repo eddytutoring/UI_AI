@@ -15,9 +15,7 @@ interface Props {
   micColor: any;
   goNextPage: any;
 }
-interface State {
-  passed: boolean;
-}
+interface State {}
 
 class Voca extends Component<Props, State> {
   constructor(props: Props) {
@@ -32,10 +30,6 @@ class Voca extends Component<Props, State> {
     );
     if (Platform.OS === 'ios') Tts.setIgnoreSilentSwitch(false);
   }
-
-  state: State = {
-    passed: false,
-  };
 
   finishListener: any;
   cancelListener: any;
@@ -104,23 +98,17 @@ class Voca extends Component<Props, State> {
 
     if (rating >= 0.7) {
       //통과한 경우
-      Voice.destroy().then(Voice.removeAllListeners); //voice 자원 해제
-      console.log('passed');
-      this.setState({
-        passed: true,
-      });
+      Voice.destroy().then(Voice.removeAllListeners);
       this.props.micColor('colored');
       this.props.micStatus('correct');
       setTimeout(() => {
         this.props.goNextPage(true);
       }, 2000);
     } else {
-      //말했는데 실패한 경우
       Voice.stop();
       this.ttsSpeaking('speak it up again.');
       this.props.micColor('red');
       this.props.micStatus('wrong');
-      // Voice.start('en-US'); //다시 듣기
     }
   }
 
@@ -157,7 +145,6 @@ class Voca extends Component<Props, State> {
           fontSize={20}
           textAlign={'flex-start'}
         />
-        {/* mic */}
       </View>
     );
   }

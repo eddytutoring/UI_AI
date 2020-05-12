@@ -13,13 +13,14 @@ const tokenizer = new Tokenizer();
 
 interface Props {
   data: any;
-  reaction: string;
+  reactionNum: string;
   micStatus: any;
   micColor: any;
   goNextPage: any;
 }
 interface State {
   reaction: boolean;
+  reaction2: boolean;
   next: boolean;
   passed: boolean;
   answer: string;
@@ -47,6 +48,7 @@ class Quiz extends Component<Props, State> {
 
   state: State = {
     reaction: false,
+    reaction2: false,
     next: false,
     passed: false,
     answer: '',
@@ -58,15 +60,16 @@ class Quiz extends Component<Props, State> {
   finishListener: any;
 
   componentDidMount() {
-    this.props.micStatus('hide');
-    this.ttsSpeaking(this.props.reaction);
-    if (this.props.data.type === 'Q') {
+    const {data, reactionNum, micStatus} = this.props;
+    micStatus('hide');
+    this.ttsSpeaking(reactionNum);
+    if (data.type === 'Q') {
       this.setState({
-        answerSet: getByIndex(this.props.data, 5),
+        answerSet: getByIndex(data, 5),
       });
     } else {
       this.setState({
-        answer: this.props.data.v_en,
+        answer: data.v_en,
         next: true,
       });
     }
@@ -78,7 +81,8 @@ class Quiz extends Component<Props, State> {
       this.state.next !== nextState.next ||
       this.state.passed !== nextState.passed ||
       this.state.compare !== nextState.compare ||
-      this.props.data !== nextProps.data
+      this.props.data !== nextProps.data ||
+      this.state.reaction2 !== nextState.reaction2
     );
   }
 
@@ -107,18 +111,16 @@ class Quiz extends Component<Props, State> {
   }
 
   ttsCallback() {
+    const {reaction, reaction2, next, passed} = this.state;
+    const {data, goNextPage} = this.props;
     Tts.stop();
-    if (
-      this.state.reaction &&
-      !this.state.next &&
-      this.props.data.type !== 'VQ'
-    ) {
+    if (reaction && !next && data.type !== 'VQ') {
       this.setState({
         next: true,
       });
     }
 
-    if (!this.state.reaction) {
+    if (!reaction) {
       setTimeout(() => {
         this.setState({
           reaction: true,
@@ -126,13 +128,18 @@ class Quiz extends Component<Props, State> {
       }, 2000);
     }
 
-    if (this.state.passed) {
-      setTimeout(() => {
-        this.props.goNextPage(true);
-        // this.setState({
-        //   nextPage: true,
-        // });
-      }, 2000);
+    if (passed) {
+      if (!reaction2) {
+        setTimeout(() => {
+          this.setState({
+            reaction2: true,
+          });
+        }, 700 * this.state.answer.split(' ').length); //TODO:
+      } else {
+        setTimeout(() => {
+          goNextPage(true);
+        }, 2000);
+      }
     }
   }
 
@@ -213,17 +220,34 @@ class Quiz extends Component<Props, State> {
     this.setState({passed: true, compare: false});
   }
 
+  randomReaction2() {
+    const reactions2 = ['great', 'nice', 'exellent', 'good'];
+    return reactions2[Math.floor(Math.random() * 4)];
+  }
+
   getEn() {
-    const {data, reaction} = this.props;
-    if (!this.state.reaction) {
+    const {data, reactionNum, micStatus, micColor} = this.props;
+    const {
+      reaction,
+      reaction2,
+      next,
+      passed,
+      compare,
+      answerSet,
+      answer,
+    } = this.state;
+    if (!reaction) {
       return (
-        <FadeToLeft data={data.type === 'Q' ? reaction : ' '} color={'#444'} />
+        <FadeToLeft
+          data={data.type === 'Q' ? reactionNum : ' '}
+          color={'#444'}
+        />
       );
     } else {
-      if (!this.state.next) {
-        this.props.micStatus('testing');
-        this.props.micColor('colored');
-        this.ttsSpeaking(this.props.data.q_en.replace('/', ' '));
+      if (!next) {
+        micStatus('testing');
+        micColor('colored');
+        this.ttsSpeaking(data.q_en.replace('/', ' '));
         return (
           <FadeIn
             data={data.q_en}
@@ -234,52 +258,49 @@ class Quiz extends Component<Props, State> {
         );
       } //next true
       else {
-        if (!this.state.passed) {
-          if (!this.state.compare) {
-            this.props.micStatus('testing');
-            this.props.micColor('white');
+        if (!passed) {
+          if (!compare) {
+            micStatus('testing');
+            micColor('white');
             Voice.start('en-US');
             return (
-              // <FadeToLeft
-              //   data={data.type === 'VQ' ? data.v_en : this.state.answerSet[0]}
-              //   color={'transparent'}
-              // />
-
               <Text
                 style={{
                   opacity: 0,
                   height: '30%',
-                }}>
-                {data.type === 'VQ' ? data.v_en : this.state.answerSet[0]}
-              </Text>
+                }}></Text>
             );
           } else {
             return (
               <Compare
                 answer={
-                  data.type === 'VQ'
-                    ? data.v_en.replace('~', '')
-                    : this.state.answer
+                  data.type === 'VQ' ? data.v_en.replace('~', '') : answer
                 }
                 finish={this.finishCompare.bind(this)}
-                micStatus={this.props.micStatus}
-                micColor={this.props.micColor}
+                micStatus={micStatus}
+                micColor={micColor}
               />
             );
           }
         } else {
           //passed
-          this.props.micColor('colored');
-          this.props.micStatus('correct');
-          this.ttsSpeaking(
-            data.type === 'VQ' ? data.v_en.replace('~', '') : this.state.answer,
-          );
-          return (
-            <FadeToLeft
-              data={data.type === 'VQ' ? data.v_en : this.state.answer}
-              color={'#444'}
-            />
-          );
+          if (!reaction2) {
+            micColor('colored');
+            micStatus('correct');
+            this.ttsSpeaking(
+              data.type === 'VQ' ? data.v_en.replace('~', '') : answer,
+            );
+            return (
+              <FadeToLeft
+                data={data.type === 'VQ' ? data.v_en : answer}
+                color={'#444'}
+              />
+            );
+          } else {
+            this.ttsSpeaking(this.randomReaction2()); //great, nice, blah blah...
+            micStatus('hide');
+            <Text style={{height: '30%'}}>' '</Text>;
+          }
         }
       }
     }
@@ -288,15 +309,22 @@ class Quiz extends Component<Props, State> {
   getKor() {
     const {data} = this.props;
     if (!this.state.reaction) {
+      //리액션
       return ' ';
     } else {
+      //리액션 끝난후
       if (data.type === 'VQ') {
+        //프리뷰면
         return data.v_ko;
       } else {
+        //리뷰면
         if (!this.state.next) {
+          //next false
           return this.removeBrackets(data.q_ko);
         } else {
-          return this.removeBrackets(data.guide);
+          //next true
+          if (!this.state.reaction2) return this.removeBrackets(data.guide);
+          else return ' ';
         }
       }
     }

@@ -19,7 +19,6 @@ class Description extends Component<Props, State> {
     Tts.setDefaultLanguage('en-US');
     Tts.addEventListener('tts-finish', this.finishListener);
     Tts.addEventListener('tts-cancel', this.cancelListener);
-    console.log('mount');
   }
 
   finishListener: any;
@@ -33,14 +32,8 @@ class Description extends Component<Props, State> {
     return this.props.data !== nextProps.data;
   }
 
-  // componentDidUpdate() {
-  //   console.log('update');
-  //   this.ttsSpeaking(this.props.data.d_en);
-  // }
-
   componentWillUnmount() {
     Tts.removeEventListener('tts-finish', this.finishListener);
-    console.log('unmount');
     Tts.stop();
   }
 

@@ -9,7 +9,6 @@ import {
   Platform,
 } from 'react-native';
 import AiTutor from './components/AiTutor';
-import value from '*.json';
 
 interface Props {}
 interface State {
@@ -21,7 +20,7 @@ interface State {
 
 getJSON = () => {
   try {
-    return require('./components/data/preview.json').data.items;
+    return require('./components/data/review.json').data.items;
   } catch (err) {
     console.warn(err);
   }
@@ -29,10 +28,11 @@ getJSON = () => {
 
 data = getJSON();
 
+quizIndex = data.findIndex((obj) => obj.type === 'Q' || obj.type === 'VQ');
+
 class App extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    console.log(data);
     this.page = this.page();
   }
 
@@ -47,7 +47,7 @@ class App extends Component<Props, State> {
     this.mission();
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: any, nextState: any) {
     return (
       this.state.goNext !== nextState.goNext ||
       this.state.clicked !== nextState.clicked ||
@@ -60,21 +60,6 @@ class App extends Component<Props, State> {
   }
 
   mission() {
-    // const it = fn();
-    // (function iterate({value, done}) {
-    //   console.log({value, done});
-    //   if (done) {
-    //     return value;
-    //   }
-
-    //   // if () { 실행이 끝나면
-    //   // this.setState({
-    //   //   page: value.no - 1,
-    //   // });
-    //   console.log(value.no - 1), iterate(it.next(value));
-    //   // }
-    // })(it.next());
-    // let next;
     if (this.state.goNext) {
       let next = this.page.next();
       this.setState({
@@ -85,10 +70,6 @@ class App extends Component<Props, State> {
     }
   }
 
-  reaction = () => {
-    //TODO:MAKE LATER
-  };
-
   goNextPage(status: boolean) {
     this.setState({
       goNext: status,
@@ -96,7 +77,6 @@ class App extends Component<Props, State> {
   }
 
   async requestPermission() {
-    console.log('request start');
     this.setState({permission: false});
     try {
       const granted = await PermissionsAndroid.check(
@@ -116,10 +96,7 @@ class App extends Component<Props, State> {
           this.setState({
             permission: true,
           });
-          console.log('after request: ' + request);
         }
-        console.log('need request');
-        console.log('current status: ' + granted);
       } else {
         this.setState({
           permission: true,
@@ -143,9 +120,8 @@ class App extends Component<Props, State> {
           this.state.goNext ? null : (
             <AiTutor
               onPressHandler={this.openAi.bind(this)}
-              fileName={'review'}
-              reaction={'one'} //TODO:CHANGE LATER
-              data={data[this.state.page]} //TODO:
+              reaction={parseInt(this.state.page) + 1 - quizIndex} //string일 땐 된다 -> 왜?
+              data={data[this.state.page]}
               goNextPage={this.goNextPage.bind(this)}
             />
           )

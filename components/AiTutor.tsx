@@ -6,9 +6,8 @@ import Quiz from './quiz/Quiz';
 import MIC from './mic/MIC';
 
 interface Props {
-  reaction: string;
-  onPressHandler: any;
-  fileName: string;
+  reaction: number;
+  onPressHandler: any; //for close function
   data: any;
   goNextPage: any;
 }
@@ -37,10 +36,48 @@ class AiTutor extends Component<Props, State> {
       );
     } else if (type === 'Q' || type === 'VQ') {
       //VQ+Q
+      const ones = [
+        '.',
+        'One.',
+        'Two.',
+        'Three.',
+        'Four.',
+        'Five.',
+        'Six.',
+        'Seven.',
+        'Eight.',
+        'Nine.',
+        'Ten.',
+        'Eleven.',
+        'Twelve.',
+        'Thirteen.',
+        'Fourteen.',
+        'Fifteen.',
+        'Sixteen.',
+        'Seventeen.',
+        'Eighteen.',
+        'Nineteen.',
+      ];
+      const tens = [
+        '',
+        '',
+        'Twenty ',
+        'Thirty ',
+        'Forty ',
+        'Fifty ',
+        'Sixty ',
+        'Seventy ',
+        'Eighty ',
+        'Ninety ',
+      ];
       return (
         <Quiz
           data={data}
-          reaction={this.props.reaction}
+          reactionNum={
+            this.props.reaction < 20
+              ? ones[this.props.reaction]
+              : tens[this.props.reaction / 10] + ones[this.props.reaction % 10]
+          }
           micStatus={this.micStatus.bind(this)}
           micColor={this.micColor.bind(this)}
           goNextPage={this.props.goNextPage.bind(this)}
