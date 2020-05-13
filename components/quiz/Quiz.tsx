@@ -42,7 +42,8 @@ class Quiz extends Component<Props, State> {
     Voice.onSpeechResults = this._debounce(
       this.onSpeechResultsHandler.bind(this),
       500,
-    );
+    ).bind(this);
+    Voice.onSpeechError = this.onSpeechErrorHandler.bind(this);
     if (Platform.OS === 'ios') Tts.setIgnoreSilentSwitch(false);
   }
 
@@ -114,6 +115,7 @@ class Quiz extends Component<Props, State> {
     const {reaction, reaction2, next, passed} = this.state;
     const {data, goNextPage} = this.props;
     Tts.stop();
+    this.props.goNextPage(true);
     if (reaction && !next && data.type !== 'VQ') {
       this.setState({
         next: true,
@@ -134,7 +136,7 @@ class Quiz extends Component<Props, State> {
           this.setState({
             reaction2: true,
           });
-        }, 700 * this.state.answer.split(' ').length);
+        }, 1000);
       } else {
         setTimeout(() => {
           goNextPage(true);
@@ -158,6 +160,7 @@ class Quiz extends Component<Props, State> {
   }
 
   onSpeechResultsHandler(e: Object | any) {
+    console.log('voice result');
     // console.log(e.value);
     // console.log(this.state.answerSet);
     let rating = 0;
@@ -191,6 +194,7 @@ class Quiz extends Component<Props, State> {
       });
     } else {
       //말했는데 실패한 경우
+      console.log('fail');
       this.props.micColor('red');
       this.props.micStatus('wrong');
       setTimeout(() => {
@@ -201,6 +205,19 @@ class Quiz extends Component<Props, State> {
               compare: true,
             }),
           );
+      }, 1000);
+    }
+  }
+
+  onSpeechErrorHandler(e: any) {
+    console.warn(e.error);
+    if (
+      e.error.message === '6/No speech input' ||
+      e.error.message === '7/No match'
+    ) {
+      console.log('catch');
+      setTimeout(() => {
+        Voice.start('en-US');
       }, 1000);
     }
   }
@@ -221,21 +238,13 @@ class Quiz extends Component<Props, State> {
   }
 
   randomReaction2() {
-    const reactions2 = ['great', 'nice', 'exellent', 'good'];
+    const reactions2 = ['great', 'nice', 'excellent', 'good'];
     return reactions2[Math.floor(Math.random() * 4)];
   }
 
   getEn() {
     const {data, reactionNum, micStatus, micColor} = this.props;
-    const {
-      reaction,
-      reaction2,
-      next,
-      passed,
-      compare,
-      answerSet,
-      answer,
-    } = this.state;
+    const {reaction, reaction2, next, passed, compare, answer} = this.state;
     if (!reaction) {
       return (
         <FadeToLeft
@@ -315,7 +324,8 @@ class Quiz extends Component<Props, State> {
       //리액션 끝난후
       if (data.type === 'VQ') {
         //프리뷰면
-        return data.v_ko;
+        if (!this.state.reaction2) return data.v_ko;
+        else return ' ';
       } else {
         //리뷰면
         if (!this.state.next) {

@@ -28,6 +28,7 @@ class Voca extends Component<Props, State> {
       this.onSpeechResultsHandler.bind(this),
       500,
     );
+    Voice.onSpeechError = this.onSpeechErrorHandler.bind(this);
     if (Platform.OS === 'ios') Tts.setIgnoreSilentSwitch(false);
   }
 
@@ -109,6 +110,19 @@ class Voca extends Component<Props, State> {
       this.ttsSpeaking('speak it up again.');
       this.props.micColor('red');
       this.props.micStatus('wrong');
+    }
+  }
+
+  onSpeechErrorHandler(e: any) {
+    console.warn(e.error);
+    if (
+      e.error.message === '6/No speech input' ||
+      e.error.message === '7/No match'
+    ) {
+      console.log('catch');
+      setTimeout(() => {
+        Voice.start('en-US');
+      }, 1000);
     }
   }
 

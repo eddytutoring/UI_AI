@@ -16,6 +16,7 @@ class Description extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.finishListener = this.ttsCallback.bind(this);
+    Tts.setDefaultRate(0.5);
     Tts.setDefaultLanguage('en-US');
     Tts.addEventListener('tts-finish', this.finishListener);
     Tts.addEventListener('tts-cancel', this.cancelListener);

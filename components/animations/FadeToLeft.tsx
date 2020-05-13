@@ -34,7 +34,7 @@ class FadeToLeft extends Component<Props, State> {
         useNativeDriver: false,
       });
     });
-    Animated.stagger(1000 / 1.5, animations).start();
+    Animated.stagger(1000 / words.length, animations).start();
   }
 
   render() {

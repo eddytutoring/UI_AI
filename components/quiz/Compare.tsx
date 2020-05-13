@@ -119,7 +119,12 @@ class Compare extends Component<Props, State> {
 
   onSpeechPartialResultsHandler(e: Object | any) {
     colors = colors.map((color: string, index: number) => {
-      if (e.value[0].split(' ').indexOf(this.state.answerArray[index]) > -1) {
+      if (
+        e.value[0]
+          .toLowerCase()
+          .split(' ')
+          .indexOf(this.state.answerArray[index].toLowerCase()) > -1
+      ) {
         console.log('확인중... ', e.value[0]);
         return '#6807f9';
       } else {
@@ -149,7 +154,10 @@ class Compare extends Component<Props, State> {
     colors = colors.map((color: string, index: number) => {
       if (
         color === '#6807f9' ||
-        target.split(' ').indexOf(this.state.answerArray[index]) > -1
+        target
+          .toLowerCase()
+          .split(' ')
+          .indexOf(this.state.answerArray[index].toLowerCase()) > -1
       )
         return '#444';
       else {

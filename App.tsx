@@ -62,10 +62,12 @@ class App extends Component<Props, State> {
   mission() {
     if (this.state.goNext) {
       let next = this.page.next();
-      this.setState({
-        page: next.value.no,
-        goNext: false,
-      });
+      if (next.value.no < data.length) {
+        this.setState({
+          page: next.value.no,
+          goNext: false,
+        });
+      }
     }
   }
 
@@ -119,9 +121,8 @@ class App extends Component<Props, State> {
           this.state.goNext ? null : (
             <AiTutor
               onPressHandler={this.openAi.bind(this)}
-              reaction={parseInt(this.state.page) + 1 - quizIndex} //string일 땐 된다 -> 왜?
+              reaction={parseInt(this.state.page) + 1 - quizIndex}
               data={data[this.state.page]}
-              // data={data[2]}
               goNextPage={this.goNextPage.bind(this)}
             />
           )
