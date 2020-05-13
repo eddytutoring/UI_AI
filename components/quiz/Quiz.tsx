@@ -134,7 +134,7 @@ class Quiz extends Component<Props, State> {
           this.setState({
             reaction2: true,
           });
-        }, 700 * this.state.answer.split(' ').length); //TODO:
+        }, 700 * this.state.answer.split(' ').length);
       } else {
         setTimeout(() => {
           goNextPage(true);

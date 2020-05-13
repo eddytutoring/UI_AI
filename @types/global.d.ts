@@ -34,6 +34,7 @@ declare module '@react-native-community/voice' {
   function onSpeechStart(event: any): void;
   function onSpeechResults(event: any): any;
   function onSpeechEnd(event: Object): void;
+  function onSpeechPartialResults(event: Object): any;
   function destroy(): any;
   function removeAllListeners(): void;
   function onSpeechRecognized(): any;

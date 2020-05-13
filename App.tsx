@@ -66,7 +66,6 @@ class App extends Component<Props, State> {
         page: next.value.no,
         goNext: false,
       });
-      console.log('next: ' + next.value.no);
     }
   }
 
@@ -122,6 +121,7 @@ class App extends Component<Props, State> {
               onPressHandler={this.openAi.bind(this)}
               reaction={parseInt(this.state.page) + 1 - quizIndex} //string일 땐 된다 -> 왜?
               data={data[this.state.page]}
+              // data={data[2]}
               goNextPage={this.goNextPage.bind(this)}
             />
           )

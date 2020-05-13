@@ -9,7 +9,7 @@ import Tokenizer from 'wink-tokenizer';
 //stt 3번, tts 3번, 비교단계
 
 const tokenizer = new Tokenizer();
-let words: Array<boolean> = [];
+let colors: Array<string> = [];
 
 interface Props {
   answer: string;
@@ -18,9 +18,11 @@ interface Props {
   micColor: any;
 }
 interface State {
+  answerArray: Array<string>;
   count: number;
   speech: string;
-  words: Array<boolean>;
+  words: Array<string>;
+  fontStyle: 'normal' | 'italic' | undefined;
 }
 
 class Compare extends Component<Props, State> {
@@ -29,21 +31,29 @@ class Compare extends Component<Props, State> {
     this.finishListener = this.ttsCallback.bind(this);
     Tts.setDefaultLanguage('en-US');
     Tts.addEventListener('tts-finish', this.finishListener);
+    Voice.onSpeechPartialResults = this.onSpeechPartialResultsHandler.bind(
+      this,
+    );
     Voice.onSpeechResults = this._debounce(
       this.onSpeechResultsHandler.bind(this),
       500,
     );
     if (Platform.OS === 'ios') Tts.setIgnoreSilentSwitch(false);
-    this.props.answer.split(' ').map((_) => (words = words.concat(false)));
-    this.setState({
-      words: words,
-    });
+    colors = this.props.answer.split(' ').map((_) => 'transparent');
+    this.setState(
+      {
+        words: colors,
+      },
+      () => console.log('first: ', this.state.words),
+    );
   }
 
   state: State = {
+    answerArray: this.props.answer.replace('.', '').split(' '),
     count: 0,
     speech: '',
     words: [],
+    fontStyle: 'normal',
   };
 
   finishListener: any;
@@ -55,18 +65,16 @@ class Compare extends Component<Props, State> {
   }
 
   shouldComponentUpdate(nextProps: any, nextState: any) {
-    return this.state.count !== nextState.count;
-  }
-
-  componentDidUpdate() {
-    this.setState({
-      words: words,
-    });
+    return (
+      this.state.count !== nextState.count ||
+      this.state.words !== nextState.words
+    );
   }
 
   ttsSpeaking(str: string) {
     this.props.micColor('colored');
     this.props.micStatus('testing');
+
     Tts.speak(
       str,
       Platform.OS === 'ios'
@@ -109,6 +117,24 @@ class Compare extends Component<Props, State> {
     ]);
   }
 
+  onSpeechPartialResultsHandler(e: Object | any) {
+    colors = colors.map((color: string, index: number) => {
+      if (e.value[0].split(' ').indexOf(this.state.answerArray[index]) > -1) {
+        console.log('확인중... ', e.value[0]);
+        return '#6807f9';
+      } else {
+        return color;
+      }
+    });
+    console.log('PARTIAL: ', e.value[0]);
+    this.setState(
+      {
+        words: colors,
+      },
+      () => console.log('purple: ', this.state.words),
+    );
+  }
+
   onSpeechResultsHandler(e: Object | any) {
     const {
       bestMatch: {target, rating},
@@ -117,6 +143,26 @@ class Compare extends Component<Props, State> {
     this.setState({
       speech: target.toLowerCase(),
     });
+
+    console.log('TARGET RESULT: ', target);
+
+    colors = colors.map((color: string, index: number) => {
+      if (
+        color === '#6807f9' ||
+        target.split(' ').indexOf(this.state.answerArray[index]) > -1
+      )
+        return '#444';
+      else {
+        return color;
+      }
+    });
+
+    this.setState(
+      {
+        words: colors,
+      },
+      () => console.log('black: ', this.state.words),
+    );
 
     if (rating >= 0.7) {
       //통과한 경우
@@ -158,26 +204,16 @@ class Compare extends Component<Props, State> {
     };
   };
 
-  getTextStyle(word: string, index: number) {
+  getTextStyle(index: number) {
+    //현재 맞췄다면
     if (
-      this.state.speech.indexOf(word.replace('.', '').trim().toLowerCase()) >
-        -1 ||
-      this.state.words[index] === true
+      this.state.words[index] === '#6807f9' ||
+      this.state.words[index] === '#444'
     ) {
-      words = [...words.slice(0, index), true, ...words.slice(index + 1)];
-      if (this.state.speech.indexOf(word.trim().toLowerCase()) > -1) {
-        //현재 맞췄다면
-        return {
-          color: '#6807f9',
-          fontStyle: 'normal',
-        };
-      } else {
-        return {
-          //맞췄던 단어라면
-          color: 'black',
-          fontStyle: 'normal',
-        };
-      }
+      return {
+        color: this.state.words[index],
+        fontStyle: 'normal',
+      };
     } else {
       //틀린 단어
       if (this.state.count == 2) {
@@ -213,14 +249,12 @@ class Compare extends Component<Props, State> {
       },
     });
 
-    const {answer} = this.props;
+    const {answerArray} = this.state;
     return (
       <View style={styles.view}>
-        {answer.split(' ').map((word, i) => {
+        {answerArray.map((word, i) => {
           return (
-            <Text
-              key={`word-${i}`}
-              style={[styles.text, this.getTextStyle(word, i)]}>
+            <Text key={`word-${i}`} style={[styles.text, this.getTextStyle(i)]}>
               {word + ' '}
             </Text>
           );
