@@ -16,6 +16,7 @@ declare module 'react-native-radial-gradient' {
 
 declare module 'react-native-tts' {
   function setDefaultLanguage(langProps: string): void;
+  function setDefaultRate(speed: number): void;
   function speak(str: string, osSettings: Object): void;
   function addEventListener(
     type: 'tts-start' | 'tts-finish' | 'tts-cancel',
@@ -46,3 +47,5 @@ declare module '*.json' {
   const value: any;
   export default value;
 }
+
+declare module '*.png';

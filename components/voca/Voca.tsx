@@ -128,7 +128,7 @@ class Voca extends Component<Props, State> {
 
   _debounce = (fn: any, delay: number) => {
     let timer: any = null;
-    return function (...args: any) {
+    return function (this: Voca, ...args: any) {
       const context = this;
       timer && clearTimeout(timer);
       timer = setTimeout(() => {
@@ -151,14 +151,8 @@ class Voca extends Component<Props, State> {
 
     return (
       <View style={styles.view}>
-        <FadeToLeft data={data.v_en} color={'black'} />
-        <FadeToTop
-          data={data.v_ko}
-          color={'#444'}
-          accentColor={'#444'}
-          fontSize={20}
-          textAlign={'flex-start'}
-        />
+        <FadeToLeft data={data.v_en} />
+        <FadeToTop data={data.v_ko} type={'vocaAndQuiz'} />
       </View>
     );
   }

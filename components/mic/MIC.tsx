@@ -2,6 +2,9 @@ import React, {Component} from 'react';
 import {View, StyleSheet, Image, Text} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import RadialGradient from 'react-native-radial-gradient';
+import passedImg from '../../resource/clearImg.png';
+import testImg from '../../resource/mic.png';
+import closeImg from '../../resource/close.png';
 
 interface Props {
   status: 'wrong' | 'correct' | 'hide' | 'testing';
@@ -9,11 +12,18 @@ interface Props {
 }
 interface State {
   diameter: number;
+  colors: Array<string>;
 }
 
 class MIC extends Component<Props, State> {
   state: State = {
     diameter: 80,
+    colors:
+      this.props.color === 'white'
+        ? ['#fff', '#fff']
+        : this.props.color === 'colored'
+        ? ['#e66465', '#9198e5']
+        : ['#fa744f', '#fa744f'],
   };
 
   render() {
@@ -59,21 +69,15 @@ class MIC extends Component<Props, State> {
               useAngle={true}
               angle={135}
               angleCenter={{x: 0.5, y: 0.5}}
-              colors={
-                this.props.color === 'white'
-                  ? ['#fff', '#fff']
-                  : this.props.color === 'colored'
-                  ? ['#e66465', '#9198e5']
-                  : ['#fa744f', '#fa744f']
-              }
+              colors={this.state.colors}
               style={styles.micImg}>
               <Image
                 source={
                   this.props.status == 'correct'
-                    ? require('../../resource/clear.png')
+                    ? passedImg
                     : this.props.status === 'testing'
-                    ? require('../../resource/mic.png')
-                    : require('../../resource/close.png')
+                    ? testImg
+                    : closeImg
                 }
                 style={
                   this.props.status === 'correct' ||

@@ -29,10 +29,6 @@ interface State {
   nextPage: boolean;
 }
 
-function getByIndex(obj: any, index: number) {
-  return obj[Object.keys(obj)[index]];
-}
-
 class Quiz extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -66,7 +62,7 @@ class Quiz extends Component<Props, State> {
     this.ttsSpeaking(reactionNum);
     if (data.type === 'Q') {
       this.setState({
-        answerSet: getByIndex(data, 5),
+        answerSet: data.a_set,
       });
     } else {
       this.setState({
@@ -115,7 +111,6 @@ class Quiz extends Component<Props, State> {
     const {reaction, reaction2, next, passed} = this.state;
     const {data, goNextPage} = this.props;
     Tts.stop();
-    this.props.goNextPage(true);
     if (reaction && !next && data.type !== 'VQ') {
       this.setState({
         next: true,
@@ -224,7 +219,7 @@ class Quiz extends Component<Props, State> {
 
   _debounce = (fn: any, delay: number) => {
     let timer: any = null;
-    return function (...args: any) {
+    return function (this: Quiz, ...args: any) {
       const context = this;
       timer && clearTimeout(timer);
       timer = setTimeout(() => {
@@ -246,12 +241,7 @@ class Quiz extends Component<Props, State> {
     const {data, reactionNum, micStatus, micColor} = this.props;
     const {reaction, reaction2, next, passed, compare, answer} = this.state;
     if (!reaction) {
-      return (
-        <FadeToLeft
-          data={data.type === 'Q' ? reactionNum : ' '}
-          color={'#444'}
-        />
-      );
+      return <FadeToLeft data={data.type === 'Q' ? reactionNum : ' '} />;
     } else {
       if (!next) {
         micStatus('testing');
@@ -260,9 +250,10 @@ class Quiz extends Component<Props, State> {
         return (
           <FadeIn
             data={data.q_en}
-            color={'#444'}
-            textAlign={'left'}
-            fontSize={20}
+            // color={'#444'}
+            // textAlign={'left'}
+            // fontSize={20}
+            type={'noImg'}
           />
         );
       } //next true
@@ -300,13 +291,10 @@ class Quiz extends Component<Props, State> {
               data.type === 'VQ' ? data.v_en.replace('~', '') : answer,
             );
             return (
-              <FadeToLeft
-                data={data.type === 'VQ' ? data.v_en : answer}
-                color={'#444'}
-              />
+              <FadeToLeft data={data.type === 'VQ' ? data.v_en : answer} />
             );
           } else {
-            this.ttsSpeaking(this.randomReaction2()); //great, nice, blah blah...
+            this.ttsSpeaking(this.randomReaction2());
             micStatus('hide');
             <Text style={{height: '30%'}}>' '</Text>;
           }
@@ -317,10 +305,9 @@ class Quiz extends Component<Props, State> {
 
   getKor() {
     const {data} = this.props;
-    if (!this.state.reaction) {
-      //리액션
-      return ' ';
-    } else {
+    if (!this.state.reaction) return ' ';
+    //리액션
+    else {
       //리액션 끝난후
       if (data.type === 'VQ') {
         //프리뷰면
@@ -328,10 +315,9 @@ class Quiz extends Component<Props, State> {
         else return ' ';
       } else {
         //리뷰면
-        if (!this.state.next) {
-          //next false
-          return this.removeBrackets(data.q_ko);
-        } else {
+        if (!this.state.next) return this.removeBrackets(data.q_ko);
+        //next false
+        else {
           //next true
           if (!this.state.reaction2) return this.removeBrackets(data.guide);
           else return ' ';
@@ -358,13 +344,7 @@ class Quiz extends Component<Props, State> {
     return (
       <View style={styles.view}>
         {this.getEn()}
-        <FadeToTop
-          data={this.getKor()}
-          color={'#444'}
-          accentColor={'#888'}
-          fontSize={20}
-          textAlign={'flex-start'}
-        />
+        <FadeToTop data={this.getKor()} type={'vocaAndQuiz'} />
       </View>
     );
   }

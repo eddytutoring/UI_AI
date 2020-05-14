@@ -203,7 +203,7 @@ class Compare extends Component<Props, State> {
 
   _debounce = (fn: any, delay: number) => {
     let timer: any = null;
-    return function (...args: any) {
+    return function (this: Compare, ...args: any) {
       const context = this;
       timer && clearTimeout(timer);
       timer = setTimeout(() => {
@@ -211,38 +211,6 @@ class Compare extends Component<Props, State> {
       }, delay);
     };
   };
-
-  getTextStyle(index: number) {
-    //현재 맞췄다면
-    if (
-      this.state.words[index] === '#6807f9' ||
-      this.state.words[index] === '#444'
-    ) {
-      return {
-        color: this.state.words[index],
-        fontStyle: 'normal',
-      };
-    } else {
-      //틀린 단어
-      if (this.state.count == 2) {
-        //힌트
-        return {
-          fontStyle: 'italic',
-          borderBottomColor: '#aaa',
-          borderBottomWidth: 1,
-          color: '#aaa',
-        };
-      } else {
-        //틀렸지만 아직 힌트가 나오기 전
-        return {
-          color: 'transparent',
-          fontStyle: 'normal',
-          borderBottomWidth: 1,
-          borderBottomColor: '#aaa',
-        };
-      }
-    }
-  }
 
   render() {
     const styles = StyleSheet.create({
@@ -257,12 +225,48 @@ class Compare extends Component<Props, State> {
       },
     });
 
+    const getTextStyle = (index: number): Object => {
+      //현재 맞췄다면
+      let style;
+      if (
+        this.state.words[index] === '#6807f9' ||
+        this.state.words[index] === '#444'
+      ) {
+        style = {};
+        return {
+          color: this.state.words[index],
+          fontStyle: 'normal',
+          borderBottomColor: '#aaa',
+          borderBottomWidth: 1,
+        };
+      } else {
+        //틀린 단어
+        if (this.state.count == 2) {
+          //힌트
+          return {
+            color: '#aaa',
+            fontStyle: 'italic',
+            borderBottomColor: '#aaa',
+            borderBottomWidth: 1,
+          };
+        } else {
+          //틀렸지만 아직 힌트가 나오기 전
+          return {
+            color: 'transparent',
+            fontStyle: 'normal',
+            borderBottomWidth: 1,
+            borderBottomColor: '#aaa',
+          };
+        }
+      }
+    };
+
     const {answerArray} = this.state;
     return (
       <View style={styles.view}>
         {answerArray.map((word, i) => {
           return (
-            <Text key={`word-${i}`} style={[styles.text, this.getTextStyle(i)]}>
+            <Text key={`word-${i}`} style={[styles.text, getTextStyle(i)]}>
               {word + ' '}
             </Text>
           );

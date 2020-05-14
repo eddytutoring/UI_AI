@@ -2,8 +2,8 @@ import React, {Component} from 'react';
 import {Image, View, StyleSheet, Platform} from 'react-native';
 import chipImg from '../../resource/chip.png';
 import FadeIn from '../animations/FadeIn';
-import Tts from 'react-native-tts';
 import FadeToTop from '../animations/FadeToTop';
+import Tts from 'react-native-tts';
 
 interface Props {
   data: any;
@@ -27,10 +27,6 @@ class Description extends Component<Props, State> {
 
   componentDidMount() {
     this.ttsSpeaking(this.props.data.d_en);
-  }
-
-  shouldComponentUpdate(nextProps: any, nextState: any) {
-    return this.props.data !== nextProps.data;
   }
 
   componentWillUnmount() {
@@ -72,34 +68,6 @@ class Description extends Component<Props, State> {
     return str.split(search).join(replace);
   }
 
-  getEnStyle() {
-    if (this.props.data.d_img) {
-      //이미지가 있다
-      return {color: 'white', fontSize: 12, textAlign: 'center'};
-    } else {
-      //이미지가 없다
-      return {color: 'black', fontSize: 20, textAlign: 'left'};
-    }
-  }
-
-  getKoStyle() {
-    if (this.props.data.d_img) {
-      return {
-        color: 'white',
-        accentColor: 'white',
-        fontSize: 16,
-        textAlign: 'center',
-      };
-    } else {
-      return {
-        color: 'black',
-        accentColor: '#888',
-        fontSize: 20,
-        textAlign: 'flex-start',
-      };
-    }
-  }
-
   render() {
     const {data} = this.props;
     data.d_ko = this.removeBrackets(data.d_ko);
@@ -121,23 +89,21 @@ class Description extends Component<Props, State> {
     });
 
     return (
-      <>
-        <View style={styles.view}>
-          <View
-            style={{
-              alignItems: 'center',
-              flex: 1,
-              justifyContent: 'center',
-              width: '85%',
-            }}>
-            {data.d_img && <Image source={chipImg} style={styles.img} />}
-            <FadeIn data={data.d_en} {...this.getEnStyle()} />
-          </View>
-          <View style={{flex: 1, justifyContent: 'flex-start'}}>
-            <FadeToTop data={data.d_ko} {...this.getKoStyle()} />
-          </View>
+      <View style={styles.view}>
+        <View
+          style={{
+            alignItems: 'center',
+            flex: 1,
+            justifyContent: 'center',
+            width: '85%',
+          }}>
+          {data.d_img && <Image source={chipImg} style={styles.img} />}
+          <FadeIn data={data.d_en} type={data.d_img ? 'hasImg' : 'noImg'} />
         </View>
-      </>
+        <View style={{flex: 1, justifyContent: 'flex-start'}}>
+          <FadeToTop data={data.d_ko} type={data.d_img ? 'desImg' : 'des'} />
+        </View>
+      </View>
     );
   }
 }

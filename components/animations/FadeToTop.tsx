@@ -3,10 +3,13 @@ import {View, Text, Animated, StyleSheet} from 'react-native';
 
 interface Props {
   data: any;
+  type: 'des' | 'desImg' | 'vocaAndQuiz';
+}
+interface State {
   color: string;
   accentColor: string;
   fontSize: number;
-  textAlign:
+  justifyContent:
     | 'center'
     | 'flex-start'
     | 'flex-end'
@@ -15,7 +18,6 @@ interface Props {
     | 'space-evenly'
     | undefined;
 }
-interface State {}
 
 let animation: Animated.Value | any;
 let words: Array<string>;
@@ -25,6 +27,18 @@ class FadeToTop extends Component<Props, State> {
     super(props);
     this.animationTiming(this.props.data);
   }
+
+  state: State = {
+    color:
+      this.props.type === 'desImg'
+        ? 'white'
+        : this.props.type === 'des'
+        ? '#888'
+        : '#444',
+    accentColor: this.props.type === 'desImg' ? 'white' : '#888',
+    fontSize: this.props.type === 'desImg' ? 16 : 20,
+    justifyContent: this.props.type === 'desImg' ? 'center' : 'flex-start',
+  };
 
   shouldComponentUpdate(nextProps: any, nextState: any) {
     this.animationTiming(nextProps.data);
@@ -61,15 +75,15 @@ class FadeToTop extends Component<Props, State> {
         ],
       },
       text: {
-        fontSize: this.props.fontSize,
-        lineHeight: this.props.fontSize,
+        fontSize: this.state.fontSize,
+        lineHeight: this.state.fontSize,
         fontWeight: '300',
         paddingVertical: 2,
       },
       textWrapper: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: this.props.textAlign,
+        justifyContent: this.state.justifyContent,
       },
     });
 
@@ -82,7 +96,7 @@ class FadeToTop extends Component<Props, State> {
                 key={`word-${i}`}
                 style={{
                   ...styles.text,
-                  color: this.props.color,
+                  color: this.state.color,
                 }}>
                 {i % 2 === 1 && word !== '' ? '"' : ''}
               </Animated.Text>
@@ -92,7 +106,7 @@ class FadeToTop extends Component<Props, State> {
                     key={`letter=${a}`}
                     style={{
                       ...styles.text,
-                      color: i % 2 ? this.props.color : this.props.accentColor,
+                      color: i % 2 ? this.state.color : this.state.accentColor,
                     }}>
                     {letter}
                   </Animated.Text>
@@ -102,7 +116,7 @@ class FadeToTop extends Component<Props, State> {
                 key={`blank-${i}`}
                 style={{
                   ...styles.text,
-                  color: this.props.color,
+                  color: this.state.color,
                 }}>
                 {i % 2 === 1 && word !== '' ? '"' : ''}
               </Animated.Text>

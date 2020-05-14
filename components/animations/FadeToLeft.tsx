@@ -3,7 +3,6 @@ import {Animated, StyleSheet} from 'react-native';
 
 interface Props {
   data: any;
-  color: string;
 }
 interface State {}
 
@@ -15,11 +14,6 @@ class FadeToLeft extends Component<Props, State> {
     super(props);
     animation = [];
     this.animationTiming(this.props.data);
-  }
-
-  shouldComponentUpdate(nextProps: any, nextState: any) {
-    this.animationTiming(nextProps.data);
-    return this.props.color !== nextProps.color;
   }
 
   animationTiming(sentence: string) {
@@ -62,7 +56,7 @@ class FadeToLeft extends Component<Props, State> {
       marginBottom: 4,
       marginTop: 4,
       opacity: animation[i],
-      color: this.props.color,
+      color: '#444',
       transform: [
         {
           translateX: animation[i].interpolate({
