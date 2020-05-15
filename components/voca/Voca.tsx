@@ -10,6 +10,7 @@ interface Props {
   micStatus(stat: string): void;
   micColor(color: string): void;
   goNextPage(stat: boolean): void;
+  micVolume(vol1: boolean, vol2: boolean): void;
 }
 interface State {}
 
@@ -50,6 +51,7 @@ class Voca extends Component<Props, State> {
           ttsRef={this.tts}
           micColor={this.props.micColor}
           micStatus={this.props.micStatus}
+          micVolume={this.props.micVolume}
           goNext={this.props.goNextPage}
         />
         <FadeToLeft data={data.v_en} />

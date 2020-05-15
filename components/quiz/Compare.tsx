@@ -11,6 +11,7 @@ interface Props {
   finish: any;
   micStatus(stat: string): void;
   micColor(color: string): void;
+  micVolume(vol1: boolean, vol2: boolean): void;
 }
 interface State {
   answerArray: Array<string>;
@@ -41,6 +42,7 @@ class Compare extends Component<Props, State> {
 
   tts2: any;
   stt2: any;
+
   componentDidMount() {
     this.tts2.ttsSpeaking('Speak it up again.');
     this.setState({
@@ -141,6 +143,7 @@ class Compare extends Component<Props, State> {
           compareSetState={this.compareSetState}
           micColor={this.props.micColor}
           micStatus={this.props.micStatus}
+          micVolume={this.props.micVolume}
           finishCompare={this.props.finish}
         />
         {answerArray.map((word, i) => {

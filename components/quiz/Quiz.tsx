@@ -14,6 +14,7 @@ interface Props {
   reactionNum: string;
   micStatus(stat: string): void;
   micColor(color: string): void;
+  micVolume(vol1: boolean, vol2: boolean): void;
   goNextPage(stat: boolean): void;
 }
 interface State {
@@ -82,7 +83,7 @@ class Quiz extends Component<Props, State> {
   }
 
   getEn() {
-    const {data, reactionNum, micStatus, micColor} = this.props;
+    const {data, reactionNum, micStatus, micColor, micVolume} = this.props;
     const {
       reaction,
       reaction2,
@@ -130,6 +131,7 @@ class Quiz extends Component<Props, State> {
                   finish={this.finishCompare}
                   micStatus={micStatus}
                   micColor={micColor}
+                  micVolume={micVolume}
                 />
               );
             } else {
@@ -182,7 +184,9 @@ class Quiz extends Component<Props, State> {
   }
 
   getSound() {
-    if (!this.state.compare) {
+    const {data, micVolume, micColor, micStatus, goNextPage} = this.props;
+    const {compare, nextPage, reaction, reaction2, passed} = this.state;
+    if (!compare) {
       this.setState({
         wait: true,
       });
@@ -191,31 +195,28 @@ class Quiz extends Component<Props, State> {
           <Tts
             ref={(ref) => (this.tts = ref)}
             sttRef={this.stt}
-            type={this.props.data.type}
-            micStatus={this.props.micStatus}
-            micColor={this.props.micColor}
-            goNextPage={this.props.goNextPage}
+            type={data.type}
+            micStatus={micStatus}
+            micColor={micColor}
+            goNextPage={goNextPage}
             quizState={{
-              next: this.state.nextPage,
-              reaction: this.state.reaction,
-              reaction2: this.state.reaction2,
-              passed: this.state.passed,
+              next: nextPage,
+              reaction: reaction,
+              reaction2: reaction2,
+              passed: passed,
             }}
             quizSetState={this.quizSetState}
           />
           <Stt
             ref={(ref) => (this.stt = ref)}
-            type={this.props.data.type}
-            data={this.props.data}
+            type={data.type}
+            data={data}
             ttsRef={this.tts}
-            answer={
-              this.props.data.type === 'Q'
-                ? this.props.data.a_set
-                : this.props.data.v_en
-            }
+            answer={data.type === 'Q' ? data.a_set : data.v_en}
             quizSetState={this.quizSetState}
-            micColor={this.props.micColor}
-            micStatus={this.props.micStatus}
+            micColor={micColor}
+            micStatus={micStatus}
+            micVolume={micVolume}
           />
         </>
       );

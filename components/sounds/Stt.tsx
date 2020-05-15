@@ -13,9 +13,10 @@ interface Props {
   ttsRef: any;
   answer?: any;
   quizSetState?(key: string, value: any): void;
-  compareSetState?(key: string, value: any, func?: any): void;
+  compareSetState?(key: string, value: any): void;
   micColor(stat: string): void;
   micStatus(stat: string): void;
+  micVolume(vol1: boolean, vol2: boolean): void;
   goNext?(stat: boolean): void;
   finishCompare?(): void;
 }
@@ -35,6 +36,7 @@ class Stt extends React.Component<Props, State> {
       500,
     );
     Voice.onSpeechError = this.onSpeechErrorHandler.bind(this);
+    Voice.onSpeechVolumeChanged = this.onSpeechVolumeChangedHandler.bind(this);
     if (this.props.type === 'Compare')
       Voice.onSpeechPartialResults = this.onSpeechPartialResultsHandler.bind(
         this,
@@ -78,6 +80,20 @@ class Stt extends React.Component<Props, State> {
     ]);
   }
 
+  onSpeechVolumeChangedHandler(e: Object | any) {
+    const {micVolume} = this.props;
+    console.log(e);
+    //e.value 5 or 10
+    if (e.value < 5) {
+      micVolume(false, false);
+    } else if (e.value >= 5 && e.value < 10) {
+      micVolume(true, false);
+    } else {
+      //volume 10
+      micVolume(false, true);
+    }
+  }
+
   onSpeechResultsHandler(e: Object | any) {
     const {
       type,
@@ -87,6 +103,7 @@ class Stt extends React.Component<Props, State> {
       compareSetState,
       micColor,
       micStatus,
+      micVolume,
       goNext,
       finishCompare,
     } = this.props;
@@ -104,6 +121,7 @@ class Stt extends React.Component<Props, State> {
         Voice.destroy().then(Voice.removeAllListeners);
         micColor('colored');
         micStatus('correct');
+        micVolume(false, false);
         setTimeout(() => {
           if (goNext) goNext(true);
         }, 2000);
@@ -111,6 +129,7 @@ class Stt extends React.Component<Props, State> {
         ttsRef.ttsSpeaking('speak it up again');
         micColor('red');
         micStatus('wrong');
+        micVolume(false, false);
       }
     } else if (type === 'VQ' || type === 'Q') {
       let rating = 0;
@@ -145,6 +164,7 @@ class Stt extends React.Component<Props, State> {
         // console.log('fail');
         micColor('red');
         micStatus('wrong');
+        micVolume(false, false);
         setTimeout(() => {
           Voice.destroy()
             .then(Voice.removeAllListeners)
@@ -186,6 +206,7 @@ class Stt extends React.Component<Props, State> {
         //말했는데 실패한 경우
         micColor('red');
         micStatus('wrong');
+        micVolume(false, false);
         Voice.destroy().then(Voice.removeAllListeners);
         setTimeout(() => {
           if (compareSetState && typeof count === 'number') {
@@ -254,6 +275,7 @@ class Stt extends React.Component<Props, State> {
   start() {
     this.props.micColor('white');
     this.props.micStatus('testing');
+    this.props.micVolume(false, false);
     Voice.start('en-US');
   }
 

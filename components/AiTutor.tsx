@@ -16,6 +16,8 @@ interface State {
   index: number;
   status: 'wrong' | 'correct' | 'hide' | 'testing';
   color: 'colored' | 'white' | 'red';
+  vol1: boolean;
+  vol2: boolean;
 }
 
 class AiTutor extends Component<Props, State> {
@@ -23,6 +25,8 @@ class AiTutor extends Component<Props, State> {
     index: 0,
     status: 'hide',
     color: 'colored',
+    vol1: false,
+    vol2: false,
   };
 
   getContents(type: string) {
@@ -74,6 +78,7 @@ class AiTutor extends Component<Props, State> {
           }
           micStatus={this.micStatus}
           micColor={this.micColor}
+          micVolume={this.micVolume}
           goNextPage={this.props.goNextPage}
         />
       );
@@ -83,6 +88,7 @@ class AiTutor extends Component<Props, State> {
           data={data}
           micStatus={this.micStatus}
           micColor={this.micColor}
+          micVolume={this.micVolume}
           goNextPage={this.props.goNextPage}
         />
       );
@@ -103,14 +109,26 @@ class AiTutor extends Component<Props, State> {
     });
   };
 
+  micVolume = (vol1: boolean, vol2: boolean) => {
+    this.setState({
+      vol1: vol1,
+      vol2: vol2,
+    });
+  };
+
   render() {
     const type = this.props.data.type;
     return (
       <>
         <View style={styles.view}>{this.getContents(type)}</View>
         {type !== 'D' && (
-          <View style={{flex: 1, justifyContent: 'center'}}>
-            <MIC status={this.state.status} color={this.state.color} />
+          <View style={{flex: 1, justifyContent: 'flex-start'}}>
+            <MIC
+              status={this.state.status}
+              color={this.state.color}
+              vol1={this.state.vol1}
+              vol2={this.state.vol2}
+            />
           </View>
         )}
       </>
