@@ -3,60 +3,20 @@ import {Image, View, StyleSheet, Platform} from 'react-native';
 import chipImg from '../../resource/chip.png';
 import FadeIn from '../animations/FadeIn';
 import FadeToTop from '../animations/FadeToTop';
-import Tts from 'react-native-tts';
+import Tts from '../sounds/Tts';
 
 interface Props {
   data: any;
-  goNextPage: any;
+  goNextPage(stat: boolean): void;
 }
 
 interface State {}
 
 class Description extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.finishListener = this.ttsCallback.bind(this);
-    Tts.setDefaultRate(0.5);
-    Tts.setDefaultLanguage('en-US');
-    Tts.addEventListener('tts-finish', this.finishListener);
-    Tts.addEventListener('tts-cancel', this.cancelListener);
-  }
-
-  finishListener: any;
-  cancelListener: any;
+  tts: any;
 
   componentDidMount() {
-    this.ttsSpeaking(this.props.data.d_en);
-  }
-
-  componentWillUnmount() {
-    Tts.removeEventListener('tts-finish', this.finishListener);
-    Tts.stop();
-  }
-
-  ttsSpeaking(str: string) {
-    Tts.speak(
-      str,
-      Platform.OS === 'ios'
-        ? {
-            iosVoiceId: 'com.apple.ttsbundle.siri_female_en-US_compact',
-            rate: 0.5,
-          }
-        : {
-            androidParams: {
-              KEY_PARAM_PAN: -1,
-              KEY_PARAM_VOLUME: 1,
-              KEY_PARAM_STREAM: 'STREAM_MUSIC',
-            },
-          },
-    );
-  }
-
-  ttsCallback() {
-    Tts.stop();
-    setTimeout(() => {
-      this.props.goNextPage(true);
-    }, 2000);
+    this.tts.ttsSpeaking(this.props.data.d_en);
   }
 
   removeBrackets(str: string) {
@@ -90,6 +50,11 @@ class Description extends Component<Props, State> {
 
     return (
       <View style={styles.view}>
+        <Tts
+          ref={(ref) => (this.tts = ref)}
+          type={'D'}
+          goNextPage={this.props.goNextPage}
+        />
         <View
           style={{
             alignItems: 'center',

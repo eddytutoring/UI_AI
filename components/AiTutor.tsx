@@ -9,7 +9,7 @@ interface Props {
   reaction: number;
   onPressHandler: any; //for close function
   data: any;
-  goNextPage: any;
+  goNextPage(stat: boolean): void;
 }
 
 interface State {
@@ -28,14 +28,8 @@ class AiTutor extends Component<Props, State> {
   getContents(type: string) {
     const {data} = this.props;
     if (type === 'D') {
-      return (
-        <Description
-          data={data}
-          goNextPage={this.props.goNextPage.bind(this)}
-        />
-      );
+      return <Description data={data} goNextPage={this.props.goNextPage} />;
     } else if (type === 'Q' || type === 'VQ') {
-      //VQ+Q
       const ones = [
         '.',
         'One.',
@@ -78,19 +72,18 @@ class AiTutor extends Component<Props, State> {
               ? ones[this.props.reaction]
               : tens[this.props.reaction / 10] + ones[this.props.reaction % 10]
           }
-          micStatus={this.micStatus.bind(this)}
-          micColor={this.micColor.bind(this)}
-          goNextPage={this.props.goNextPage.bind(this)}
+          micStatus={this.micStatus}
+          micColor={this.micColor}
+          goNextPage={this.props.goNextPage}
         />
       );
     } else if (type === 'V') {
-      //V
       return (
         <Voca
           data={data}
-          micStatus={this.micStatus.bind(this)}
-          micColor={this.micColor.bind(this)}
-          goNextPage={this.props.goNextPage.bind(this)}
+          micStatus={this.micStatus}
+          micColor={this.micColor}
+          goNextPage={this.props.goNextPage}
         />
       );
     } else {
@@ -98,17 +91,17 @@ class AiTutor extends Component<Props, State> {
     }
   }
 
-  micStatus(status: 'wrong' | 'correct' | 'hide' | 'testing') {
+  micStatus = (status: 'wrong' | 'correct' | 'hide' | 'testing') => {
     this.setState({
       status: status,
     });
-  }
+  };
 
-  micColor(color: 'colored' | 'white' | 'red') {
+  micColor = (color: 'colored' | 'white' | 'red') => {
     this.setState({
       color: color,
     });
-  }
+  };
 
   render() {
     const type = this.props.data.type;

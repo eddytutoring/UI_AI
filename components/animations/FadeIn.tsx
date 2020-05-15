@@ -4,9 +4,6 @@ import {Animated, StyleSheet} from 'react-native';
 interface Props {
   data: any;
   type: 'hasImg' | 'noImg';
-  // fontSize: number;
-  // color: string;
-  // textAlign: 'center' | 'auto' | 'left' | 'right' | 'justify' | undefined;
 }
 interface State {
   fontSize: number;

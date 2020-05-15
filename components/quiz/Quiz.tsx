@@ -1,22 +1,20 @@
 import React, {Component} from 'react';
-import {View, StyleSheet, Platform, Text} from 'react-native';
+import {View, StyleSheet, Text} from 'react-native';
 import FadeToTop from '../animations/FadeToTop';
 import FadeToLeft from '../animations/FadeToLeft';
 import FadeIn from '../animations/FadeIn';
 import Compare from './Compare';
-import Tts from 'react-native-tts';
-import Voice from '@react-native-community/voice';
-import similarity from 'string-similarity';
-import Tokenizer from 'wink-tokenizer';
+import Tts from '../sounds/Tts';
+import Stt from '../sounds/Stt';
 
-const tokenizer = new Tokenizer();
+type StateKeys = keyof State;
 
 interface Props {
   data: any;
   reactionNum: string;
-  micStatus: any;
-  micColor: any;
-  goNextPage: any;
+  micStatus(stat: string): void;
+  micColor(color: string): void;
+  goNextPage(stat: boolean): void;
 }
 interface State {
   reaction: boolean;
@@ -27,22 +25,10 @@ interface State {
   answerSet: Array<string>;
   compare: boolean;
   nextPage: boolean;
+  wait: boolean;
 }
 
 class Quiz extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.finishListener = this.ttsCallback.bind(this);
-    Tts.setDefaultLanguage('en-US');
-    Tts.addEventListener('tts-finish', this.finishListener);
-    Voice.onSpeechResults = this._debounce(
-      this.onSpeechResultsHandler.bind(this),
-      500,
-    ).bind(this);
-    Voice.onSpeechError = this.onSpeechErrorHandler.bind(this);
-    if (Platform.OS === 'ios') Tts.setIgnoreSilentSwitch(false);
-  }
-
   state: State = {
     reaction: false,
     reaction2: false,
@@ -52,20 +38,22 @@ class Quiz extends Component<Props, State> {
     answerSet: [],
     compare: false,
     nextPage: false,
+    wait: true,
   };
 
-  finishListener: any;
+  tts: any;
+  stt: any;
 
   componentDidMount() {
-    const {data, reactionNum, micStatus} = this.props;
-    micStatus('hide');
-    this.ttsSpeaking(reactionNum);
+    const {data, reactionNum} = this.props;
     if (data.type === 'Q') {
+      this.tts.ttsSpeaking(reactionNum);
       this.setState({
         answerSet: data.a_set,
       });
     } else {
       this.setState({
+        reaction: true,
         answer: data.v_en,
         next: true,
       });
@@ -79,158 +67,14 @@ class Quiz extends Component<Props, State> {
       this.state.passed !== nextState.passed ||
       this.state.compare !== nextState.compare ||
       this.props.data !== nextProps.data ||
-      this.state.reaction2 !== nextState.reaction2
+      this.state.reaction2 !== nextState.reaction2 ||
+      this.state.wait !== nextState.wait
     );
   }
 
-  componentWillUnmount() {
-    Tts.removeEventListener('tts-finish', this.finishListener);
-    Tts.stop();
-    Voice.destroy().then(Voice.removeAllListeners);
-  }
-
-  ttsSpeaking(str: string) {
-    Tts.speak(
-      str,
-      Platform.OS === 'ios'
-        ? {
-            iosVoiceId: 'com.apple.ttsbundle.siri_female_en-US_compact',
-            rate: 0.5,
-          }
-        : {
-            androidParams: {
-              KEY_PARAM_PAN: -1,
-              KEY_PARAM_VOLUME: 1,
-              KEY_PARAM_STREAM: 'STREAM_MUSIC',
-            },
-          },
-    );
-  }
-
-  ttsCallback() {
-    const {reaction, reaction2, next, passed} = this.state;
-    const {data, goNextPage} = this.props;
-    Tts.stop();
-    if (reaction && !next && data.type !== 'VQ') {
-      this.setState({
-        next: true,
-      });
-    }
-
-    if (!reaction) {
-      setTimeout(() => {
-        this.setState({
-          reaction: true,
-        });
-      }, 2000);
-    }
-
-    if (passed) {
-      if (!reaction2) {
-        setTimeout(() => {
-          this.setState({
-            reaction2: true,
-          });
-        }, 1000);
-      } else {
-        setTimeout(() => {
-          goNextPage(true);
-        }, 2000);
-      }
-    }
-  }
-
-  processNLU(answerSentence: string, candidateList: string[]) {
-    const answerWord = tokenizer
-      .tokenize(answerSentence.toLowerCase().replace('~', ''))
-      .filter((token: any) => token.tag === 'word' || token.tag === 'number')
-      .map((token: any) => token.value)
-      .join('');
-
-    return similarity.findBestMatch(answerWord, [
-      ...candidateList.map((sentence) =>
-        sentence.toLowerCase().replace('~', ''),
-      ),
-    ]);
-  }
-
-  onSpeechResultsHandler(e: Object | any) {
-    console.log('voice result');
-    // console.log(e.value);
-    // console.log(this.state.answerSet);
-    let rating = 0;
-    if (this.state.answer == '') {
-      let accuracy = this.state.answerSet.map((sentence) => {
-        return this.processNLU(sentence, e.value).bestMatch.rating;
-      });
-
-      let indexOfMaxValue = accuracy.reduce(
-        (iMax, x, i, arr) => (x > arr[iMax] ? i : iMax),
-        0,
-      );
-
-      this.setState({
-        answer: this.state.answerSet[indexOfMaxValue],
-      });
-
-      rating = accuracy[indexOfMaxValue];
-    } else {
-      rating = this.processNLU(this.props.data.v_en.replace('~', ''), e.value)
-        .bestMatch.rating;
-    }
-    // console.log('답: ' + this.state.answer);
-    if (rating >= 0.7) {
-      //통과한 경우
-      Voice.destroy().then(Voice.removeAllListeners);
-      // console.log('passed');
-      this.setState({
-        passed: true,
-        compare: false,
-      });
-    } else {
-      //말했는데 실패한 경우
-      console.log('fail');
-      this.props.micColor('red');
-      this.props.micStatus('wrong');
-      setTimeout(() => {
-        Voice.destroy()
-          .then(Voice.removeAllListeners)
-          .then(() =>
-            this.setState({
-              compare: true,
-            }),
-          );
-      }, 1000);
-    }
-  }
-
-  onSpeechErrorHandler(e: any) {
-    console.warn(e.error);
-    if (
-      e.error.message === '6/No speech input' ||
-      e.error.message === '7/No match'
-    ) {
-      console.log('catch');
-      setTimeout(() => {
-        Voice.start('en-US');
-      }, 1000);
-    }
-  }
-
-  _debounce = (fn: any, delay: number) => {
-    let timer: any = null;
-    return function (this: Quiz, ...args: any) {
-      const context = this;
-      timer && clearTimeout(timer);
-      timer = setTimeout(() => {
-        fn.apply(context, args);
-      }, delay);
-    };
-  };
-
-  finishCompare() {
+  finishCompare = () => {
     this.setState({passed: true, compare: false});
-  }
+  };
 
   randomReaction2() {
     const reactions2 = ['great', 'nice', 'excellent', 'good'];
@@ -239,30 +83,31 @@ class Quiz extends Component<Props, State> {
 
   getEn() {
     const {data, reactionNum, micStatus, micColor} = this.props;
-    const {reaction, reaction2, next, passed, compare, answer} = this.state;
+    const {
+      reaction,
+      reaction2,
+      next,
+      passed,
+      compare,
+      answer,
+      wait,
+    } = this.state;
     if (!reaction) {
+      micStatus('hide');
       return <FadeToLeft data={data.type === 'Q' ? reactionNum : ' '} />;
     } else {
       if (!next) {
         micStatus('testing');
         micColor('colored');
-        this.ttsSpeaking(data.q_en.replace('/', ' '));
-        return (
-          <FadeIn
-            data={data.q_en}
-            // color={'#444'}
-            // textAlign={'left'}
-            // fontSize={20}
-            type={'noImg'}
-          />
-        );
+        this.tts.ttsSpeaking(data.q_en.replace('/', ' '));
+        return <FadeIn data={data.q_en} type={'noImg'} />;
       } //next true
       else {
         if (!passed) {
           if (!compare) {
             micStatus('testing');
             micColor('white');
-            Voice.start('en-US');
+            this.stt.start();
             return (
               <Text
                 style={{
@@ -271,30 +116,40 @@ class Quiz extends Component<Props, State> {
                 }}></Text>
             );
           } else {
-            return (
-              <Compare
-                answer={
-                  data.type === 'VQ' ? data.v_en.replace('~', '') : answer
-                }
-                finish={this.finishCompare.bind(this)}
-                micStatus={micStatus}
-                micColor={micColor}
-              />
-            );
+            setTimeout(() => {
+              this.setState({
+                wait: false,
+              });
+            }, 500);
+            if (!wait) {
+              return (
+                <Compare
+                  answer={
+                    data.type === 'VQ' ? data.v_en.replace('~', '') : answer
+                  }
+                  finish={this.finishCompare}
+                  micStatus={micStatus}
+                  micColor={micColor}
+                />
+              );
+            } else {
+              return <Text style={{height: '30%'}}></Text>;
+            }
           }
         } else {
           //passed
           if (!reaction2) {
             micColor('colored');
             micStatus('correct');
-            this.ttsSpeaking(
-              data.type === 'VQ' ? data.v_en.replace('~', '') : answer,
-            );
+            if (this.tts !== null)
+              this.tts.ttsSpeaking(
+                data.type === 'VQ' ? data.v_en.replace('~', '') : answer,
+              );
             return (
               <FadeToLeft data={data.type === 'VQ' ? data.v_en : answer} />
             );
           } else {
-            this.ttsSpeaking(this.randomReaction2());
+            if (this.tts !== null) this.tts.ttsSpeaking(this.randomReaction2());
             micStatus('hide');
             <Text style={{height: '30%'}}>' '</Text>;
           }
@@ -326,10 +181,59 @@ class Quiz extends Component<Props, State> {
     }
   }
 
+  getSound() {
+    if (!this.state.compare) {
+      this.setState({
+        wait: true,
+      });
+      return (
+        <>
+          <Tts
+            ref={(ref) => (this.tts = ref)}
+            sttRef={this.stt}
+            type={this.props.data.type}
+            micStatus={this.props.micStatus}
+            micColor={this.props.micColor}
+            goNextPage={this.props.goNextPage}
+            quizState={{
+              next: this.state.nextPage,
+              reaction: this.state.reaction,
+              reaction2: this.state.reaction2,
+              passed: this.state.passed,
+            }}
+            quizSetState={this.quizSetState}
+          />
+          <Stt
+            ref={(ref) => (this.stt = ref)}
+            type={this.props.data.type}
+            data={this.props.data}
+            ttsRef={this.tts}
+            answer={
+              this.props.data.type === 'Q'
+                ? this.props.data.a_set
+                : this.props.data.v_en
+            }
+            quizSetState={this.quizSetState}
+            micColor={this.props.micColor}
+            micStatus={this.props.micStatus}
+          />
+        </>
+      );
+    } else {
+      return null;
+    }
+  }
+
   removeBrackets(str: string) {
     str = str.split('{').join('');
     return str.split('}').join('');
   }
+
+  quizSetState = (key: StateKeys, value: boolean | string | Array<string>) => {
+    this.setState({
+      [key]: value,
+    } as Pick<State, keyof State>);
+  };
 
   render() {
     const styles = StyleSheet.create({
@@ -343,6 +247,7 @@ class Quiz extends Component<Props, State> {
 
     return (
       <View style={styles.view}>
+        {this.getSound()}
         {this.getEn()}
         <FadeToTop data={this.getKor()} type={'vocaAndQuiz'} />
       </View>

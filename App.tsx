@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+
 import {
   StyleSheet,
   Text,
@@ -20,7 +21,7 @@ interface State {
 
 getJSON = () => {
   try {
-    return require('./components/data/review.json').data.items;
+    return require('./components/data/preview.json').data.items;
   } catch (err) {
     console.warn(err);
   }
@@ -71,11 +72,11 @@ class App extends Component<Props, State> {
     }
   }
 
-  goNextPage(status: boolean) {
+  goNextPage = (status: boolean) => {
     this.setState({
       goNext: status,
     });
-  }
+  };
 
   async requestPermission() {
     this.setState({permission: false});
@@ -123,7 +124,7 @@ class App extends Component<Props, State> {
               onPressHandler={this.openAi.bind(this)}
               reaction={parseInt(this.state.page) + 1 - quizIndex}
               data={data[this.state.page]}
-              goNextPage={this.goNextPage.bind(this)}
+              goNextPage={this.goNextPage}
             />
           )
         ) : (

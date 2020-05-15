@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {View, StyleSheet, Image, Text} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import RadialGradient from 'react-native-radial-gradient';
-import passedImg from '../../resource/clearImg.png';
+import passedImg from '../../resource/passed.png';
 import testImg from '../../resource/mic.png';
 import closeImg from '../../resource/close.png';
 
@@ -12,18 +12,11 @@ interface Props {
 }
 interface State {
   diameter: number;
-  colors: Array<string>;
 }
 
 class MIC extends Component<Props, State> {
   state: State = {
     diameter: 80,
-    colors:
-      this.props.color === 'white'
-        ? ['#fff', '#fff']
-        : this.props.color === 'colored'
-        ? ['#e66465', '#9198e5']
-        : ['#fa744f', '#fa744f'],
   };
 
   render() {
@@ -69,7 +62,13 @@ class MIC extends Component<Props, State> {
               useAngle={true}
               angle={135}
               angleCenter={{x: 0.5, y: 0.5}}
-              colors={this.state.colors}
+              colors={
+                this.props.color === 'white'
+                  ? ['#fff', '#fff']
+                  : this.props.color === 'colored'
+                  ? ['#e66465', '#9198e5']
+                  : ['#fa744f', '#fa744f']
+              }
               style={styles.micImg}>
               <Image
                 source={
