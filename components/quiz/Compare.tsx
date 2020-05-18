@@ -19,7 +19,6 @@ interface State {
   speech: string;
   words: Array<string>;
   fontStyle: 'normal' | 'italic' | undefined;
-  wait: boolean;
 }
 
 class Compare extends Component<Props, State> {
@@ -37,7 +36,6 @@ class Compare extends Component<Props, State> {
     speech: '',
     words: [],
     fontStyle: 'normal',
-    wait: true,
   };
 
   tts2: any;
@@ -45,16 +43,13 @@ class Compare extends Component<Props, State> {
 
   componentDidMount() {
     this.tts2.ttsSpeaking('Speak it up again.');
-    this.setState({
-      wait: false,
-    });
+    this.forceUpdate();
   }
 
   shouldComponentUpdate(nextProps: any, nextState: any) {
     return (
       this.state.count !== nextState.count ||
-      this.state.words !== nextState.words ||
-      this.state.wait !== nextState.wait
+      this.state.words !== nextState.words
     );
   }
 
@@ -86,12 +81,10 @@ class Compare extends Component<Props, State> {
 
     const getTextStyle = (index: number): Object => {
       //현재 맞췄다면
-      let style;
       if (
         this.state.words[index] === '#6807f9' ||
         this.state.words[index] === '#444'
       ) {
-        style = {};
         return {
           color: this.state.words[index],
           fontStyle: 'normal',

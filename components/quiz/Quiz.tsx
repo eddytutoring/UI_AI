@@ -67,7 +67,6 @@ class Quiz extends Component<Props, State> {
       this.state.next !== nextState.next ||
       this.state.passed !== nextState.passed ||
       this.state.compare !== nextState.compare ||
-      this.props.data !== nextProps.data ||
       this.state.reaction2 !== nextState.reaction2 ||
       this.state.wait !== nextState.wait
     );

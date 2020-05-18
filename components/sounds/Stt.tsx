@@ -82,14 +82,11 @@ class Stt extends React.Component<Props, State> {
 
   onSpeechVolumeChangedHandler(e: Object | any) {
     const {micVolume} = this.props;
-    console.log(e);
-    //e.value 5 or 10
     if (e.value < 5) {
       micVolume(false, false);
     } else if (e.value >= 5 && e.value < 10) {
       micVolume(true, false);
     } else {
-      //volume 10
       micVolume(false, true);
     }
   }

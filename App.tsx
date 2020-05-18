@@ -21,7 +21,7 @@ interface State {
 
 getJSON = () => {
   try {
-    return require('./components/data/preview.json').data.items;
+    return require('./components/data/review.json').data.items;
   } catch (err) {
     console.warn(err);
   }
@@ -35,6 +35,7 @@ class App extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.page = this.page();
+    this.page.next();
   }
 
   state: State = {
@@ -63,9 +64,10 @@ class App extends Component<Props, State> {
   mission() {
     if (this.state.goNext) {
       let next = this.page.next();
-      if (next.value.no < data.length) {
+      if (!next.done) {
+        console.log(next);
         this.setState({
-          page: next.value.no,
+          page: next.value.no - 1,
           goNext: false,
         });
       }
@@ -119,7 +121,7 @@ class App extends Component<Props, State> {
     return (
       <SafeAreaView style={styles.view}>
         {this.state.permission && this.state.clicked ? (
-          this.state.goNext ? null : (
+          this.state.goNext && this.state.page !== data.length - 1 ? null : (
             <AiTutor
               onPressHandler={this.openAi.bind(this)}
               reaction={parseInt(this.state.page) + 1 - quizIndex}
