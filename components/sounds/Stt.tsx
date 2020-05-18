@@ -12,6 +12,7 @@ interface Props {
   colors?: Array<string>;
   ttsRef: any;
   answer?: any;
+  vocaSetState?(key: string, value: number): void;
   quizSetState?(key: string, value: any): void;
   compareSetState?(key: string, value: any): void;
   micColor(stat: string): void;
@@ -96,6 +97,7 @@ class Stt extends React.Component<Props, State> {
       type,
       data,
       ttsRef,
+      vocaSetState,
       quizSetState,
       compareSetState,
       micColor,
@@ -123,7 +125,16 @@ class Stt extends React.Component<Props, State> {
           if (goNext) goNext(true);
         }, 2000);
       } else {
-        ttsRef.ttsSpeaking('speak it up again');
+        if (this.state.count < 1) {
+          ttsRef.ttsSpeaking('speak it up again');
+        } else {
+          Voice.destroy().then(Voice.removeAllListeners);
+          ttsRef.ttsSpeaking(data.v_en);
+        }
+        this.setState({
+          count: this.state.count + 1,
+        });
+        if (vocaSetState) vocaSetState('count', this.state.count);
         micColor('red');
         micStatus('wrong');
         micVolume(false, false);

@@ -21,7 +21,7 @@ interface State {
 
 getJSON = () => {
   try {
-    return require('./components/data/review.json').data.items;
+    return require('./components/data/preview.json').data.items;
   } catch (err) {
     console.warn(err);
   }
@@ -65,7 +65,7 @@ class App extends Component<Props, State> {
     if (this.state.goNext) {
       let next = this.page.next();
       if (!next.done) {
-        console.log(next);
+        // console.log(next);
         this.setState({
           page: next.value.no - 1,
           goNext: false,

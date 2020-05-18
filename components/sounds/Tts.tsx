@@ -4,6 +4,7 @@ import tts from 'react-native-tts';
 
 interface Props {
   type: 'D' | 'V' | 'Q' | 'VQ' | 'Compare';
+  count?: number;
   compareCount?: number;
   sttRef?: any;
   quizState?: {
@@ -81,15 +82,21 @@ class Tts extends React.Component<Props, State> {
         if (goNextPage) goNextPage(true);
       }, 2000);
     } else if (type === 'V') {
-      setTimeout(() => {
-        sttRef.start();
-        if (micColor && micStatus) {
-          setTimeout(() => {
-            micColor('white');
-            micStatus('testing');
-          }, 1000);
-        }
-      }, 1000);
+      if (typeof this.props.count === 'number' && this.props.count < 2) {
+        setTimeout(() => {
+          sttRef.start();
+          if (micColor && micStatus) {
+            setTimeout(() => {
+              micColor('white');
+              micStatus('testing');
+            }, 1000);
+          }
+        }, 1000);
+      } else {
+        setTimeout(() => {
+          if (goNextPage) goNextPage(true);
+        }, 1000);
+      }
     } else if (type === 'Q' || type === 'VQ') {
       tts.stop();
       if (quizState?.reaction && !quizState?.next && type !== 'VQ') {
